@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the pinned Flutter SDK
+        run: |
+          git clone --depth 1 --branch 3.41.7 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Prepare empty client configuration
+        run: cp .env.example .env.local
+      - name: Generate, analyze and test
+        run: bash tool/check.sh
+      - name: Verify generated files and lockfile are checked in
+        run: |
+          git diff --exit-code -- pubspec.lock lib
+          test -z "$(git ls-files --others --exclude-standard -- lib)"

@@ -1,0 +1,819 @@
+{
+  "@@locale": "en",
+  "appTitle": "Ledger",
+  "@appTitle": {
+    "description": "Application name."
+  },
+  "homeTab": "Home",
+  "@homeTab": {
+    "description": "Home navigation tab."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Settings page title and navigation tab."
+  },
+  "homeEmptyTitle": "Start your ledger here",
+  "@homeEmptyTitle": {
+    "description": "Title displayed before a ledger exists."
+  },
+  "homeEmptyBody": "No ledgers yet",
+  "@homeEmptyBody": {
+    "description": "Empty ledger list message."
+  },
+  "appearanceTitle": "Appearance",
+  "@appearanceTitle": {
+    "description": "Theme preferences section heading."
+  },
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "Follow the system color theme."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Use the light color theme."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Use the dark color theme."
+  },
+  "languageTitle": "Language",
+  "@languageTitle": {
+    "description": "Application language section heading."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "English language option, shown in its native name."
+  },
+  "languageChinese": "简体中文",
+  "@languageChinese": {
+    "description": "Simplified Chinese language option, shown in its native name."
+  },
+  "pageNotFoundTitle": "Page not found",
+  "@pageNotFoundTitle": {
+    "description": "Title for an unknown route."
+  },
+  "pageNotFoundBody": "This page is not available.",
+  "@pageNotFoundBody": {
+    "description": "Description for an unknown route."
+  },
+  "backToHome": "Back to home",
+  "@backToHome": {
+    "description": "Return to the home page from an unknown route."
+  },
+  "endpointLabel": "API Endpoint",
+  "@endpointLabel": {
+    "description": "Endpoint configuration UI: API Endpoint"
+  },
+  "serverTitle": "Server",
+  "@serverTitle": {
+    "description": "Endpoint configuration UI: Server"
+  },
+  "endpointUnavailable": "Not configured",
+  "@endpointUnavailable": {
+    "description": "Shown when the deployment API endpoint is missing or invalid."
+  },
+  "configurationNeeded": "Client configuration is missing or invalid. Check the deployment configuration.",
+  "loadingLabel": "Loading…",
+  "retryAction": "Retry",
+  "signOutAction": "Sign out",
+  "createSpace": "Create your personal space",
+  "currencyLabel": "Base currency",
+  "timezoneLabel": "Time zone",
+  "currencyWarning": "The base currency cannot be changed after creation. Review these settings before continuing.",
+  "defaultsWarning": "Some device settings could not be detected. Review the suggested USD currency and/or UTC time zone.",
+  "createAction": "Create personal space",
+  "requiredValue": "Enter a valid value.",
+  "currencyValidation": "Use a three-letter uppercase ISO currency code.",
+  "booksTitle": "Books",
+  "refreshAction": "Refresh",
+  "bookDetailsTitle": "Book details",
+  "personalSpaceLabel": "Personal space",
+  "identityLabel": "User",
+  "defaultBookLabel": "Default book",
+  "saveAction": "Save",
+  "cancelAction": "Cancel",
+  "editTimezone": "Change time zone",
+  "networkError": "Unable to connect. Check your connection and try again.",
+  "authenticationError": "Authentication is unavailable. Please retry or sign in again.",
+  "sessionExpired": "Ledger could not verify your sign-in. Try again. If this continues after signing in again, contact support.",
+  "userDisabled": "Your account has been disabled. Contact your instance administrator.",
+  "accessDenied": "You do not have access to this resource.",
+  "unsupportedVersion": "This app version is incompatible with the server. Update the app or contact the administrator.",
+  "invalidRequest": "The server rejected these settings. Check the currency and IANA time zone where applicable.",
+  "notFoundError": "This book is unavailable or no longer accessible.",
+  "serviceUnavailable": "The service is temporarily unavailable. Try again later.",
+  "genericError": "Something went wrong. Please try again.",
+  "invalidResponse": "The server returned an unexpected response.",
+  "signoutError": "Sign out failed. Your local pages have been cleared. Retry signing out.",
+  "correlationLabel": "Support reference",
+  "initializationTitle": "Personal space setup",
+  "loginTitle": "Sign in to Ledger",
+  "invalidFieldsLabel": "Check these fields",
+  "@configurationNeeded": {
+    "description": "Personal identity interface: configurationNeeded"
+  },
+  "@loadingLabel": {
+    "description": "Personal identity interface: loadingLabel"
+  },
+  "@retryAction": {
+    "description": "Personal identity interface: retryAction"
+  },
+  "@signOutAction": {
+    "description": "Personal identity interface: signOutAction"
+  },
+  "@createSpace": {
+    "description": "Personal identity interface: createSpace"
+  },
+  "@currencyLabel": {
+    "description": "Personal identity interface: currencyLabel"
+  },
+  "@timezoneLabel": {
+    "description": "Personal identity interface: timezoneLabel"
+  },
+  "@currencyWarning": {
+    "description": "Personal identity interface: currencyWarning"
+  },
+  "@defaultsWarning": {
+    "description": "Personal identity interface: defaultsWarning"
+  },
+  "@createAction": {
+    "description": "Personal identity interface: createAction"
+  },
+  "@requiredValue": {
+    "description": "Personal identity interface: requiredValue"
+  },
+  "@currencyValidation": {
+    "description": "Personal identity interface: currencyValidation"
+  },
+  "@booksTitle": {
+    "description": "Personal identity interface: booksTitle"
+  },
+  "@refreshAction": {
+    "description": "Personal identity interface: refreshAction"
+  },
+  "@bookDetailsTitle": {
+    "description": "Personal identity interface: bookDetailsTitle"
+  },
+  "@personalSpaceLabel": {
+    "description": "Personal identity interface: personalSpaceLabel"
+  },
+  "@identityLabel": {
+    "description": "Personal identity interface: identityLabel"
+  },
+  "@defaultBookLabel": {
+    "description": "Personal identity interface: defaultBookLabel"
+  },
+  "@saveAction": {
+    "description": "Personal identity interface: saveAction"
+  },
+  "@cancelAction": {
+    "description": "Phase two accounting interface: cancelAction."
+  },
+  "@editTimezone": {
+    "description": "Personal identity interface: editTimezone"
+  },
+  "@networkError": {
+    "description": "Personal identity interface: networkError"
+  },
+  "@authenticationError": {
+    "description": "Personal identity interface: authenticationError"
+  },
+  "@sessionExpired": {
+    "description": "Personal identity interface: sessionExpired"
+  },
+  "@userDisabled": {
+    "description": "Personal identity interface: userDisabled"
+  },
+  "@accessDenied": {
+    "description": "Personal identity interface: accessDenied"
+  },
+  "@unsupportedVersion": {
+    "description": "Personal identity interface: unsupportedVersion"
+  },
+  "@invalidRequest": {
+    "description": "Personal identity interface: invalidRequest"
+  },
+  "@notFoundError": {
+    "description": "Personal identity interface: notFoundError"
+  },
+  "@serviceUnavailable": {
+    "description": "Personal identity interface: serviceUnavailable"
+  },
+  "@genericError": {
+    "description": "Personal identity interface: genericError"
+  },
+  "@invalidResponse": {
+    "description": "Personal identity interface: invalidResponse"
+  },
+  "@signoutError": {
+    "description": "Personal identity interface: signoutError"
+  },
+  "@correlationLabel": {
+    "description": "Personal identity interface: correlationLabel"
+  },
+  "@initializationTitle": {
+    "description": "Personal identity interface: initializationTitle"
+  },
+  "@loginTitle": {
+    "description": "Personal identity interface: loginTitle"
+  },
+  "@invalidFieldsLabel": {
+    "description": "Personal identity interface: invalidFieldsLabel"
+  },
+  "welcomeTitle": "A little clarity, every day.",
+  "welcomeBody": "Your money, thoughtfully organized. Start with your personal ledger.",
+  "browserSignIn": "Sign in / Sign up",
+  "browserSignInHint": "Continue securely in your browser. You will return here when you are done.",
+  "browserSigningIn": "Waiting for sign-in…",
+  "browserSignInError": "Could not complete sign-in. Please try again.",
+  "setupCurrencyTitle": "Make it your ledger",
+  "setupCurrencyBody": "Choose the currency you use to see the big picture.",
+  "setupPreferencesTitle": "A few personal touches",
+  "setupPreferencesBody": "Choose your language and local time. You can change these later in Settings.",
+  "nextAction": "Continue",
+  "previousAction": "Back",
+  "startLedgerAction": "Start my ledger",
+  "setupStepOne": "STEP 1 OF 2",
+  "setupStepTwo": "STEP 2 OF 2",
+  "searchOptions": "Search",
+  "noOptionsFound": "No matches found",
+  "currencySummary": "Your ledger currency",
+  "catalogError": "Could not load choices. Please try again.",
+  "@welcomeTitle": {
+    "description": "Authentication and onboarding: welcomeTitle"
+  },
+  "@welcomeBody": {
+    "description": "Authentication and onboarding: welcomeBody"
+  },
+  "@browserSignIn": {
+    "description": "Authentication and onboarding: browserSignIn"
+  },
+  "@browserSignInHint": {
+    "description": "Authentication and onboarding: browserSignInHint"
+  },
+  "@browserSigningIn": {
+    "description": "Authentication and onboarding: browserSigningIn"
+  },
+  "@browserSignInError": {
+    "description": "Authentication and onboarding: browserSignInError"
+  },
+  "@setupCurrencyTitle": {
+    "description": "Authentication and onboarding: setupCurrencyTitle"
+  },
+  "@setupCurrencyBody": {
+    "description": "Authentication and onboarding: setupCurrencyBody"
+  },
+  "@setupPreferencesTitle": {
+    "description": "Authentication and onboarding: setupPreferencesTitle"
+  },
+  "@setupPreferencesBody": {
+    "description": "Authentication and onboarding: setupPreferencesBody"
+  },
+  "@nextAction": {
+    "description": "Authentication and onboarding: nextAction"
+  },
+  "@previousAction": {
+    "description": "Authentication and onboarding: previousAction"
+  },
+  "@startLedgerAction": {
+    "description": "Authentication and onboarding: startLedgerAction"
+  },
+  "@setupStepOne": {
+    "description": "Authentication and onboarding: setupStepOne"
+  },
+  "@setupStepTwo": {
+    "description": "Authentication and onboarding: setupStepTwo"
+  },
+  "@searchOptions": {
+    "description": "Authentication and onboarding: searchOptions"
+  },
+  "@noOptionsFound": {
+    "description": "Authentication and onboarding: noOptionsFound"
+  },
+  "@currencySummary": {
+    "description": "Authentication and onboarding: currencySummary"
+  },
+  "@catalogError": {
+    "description": "Authentication and onboarding: catalogError"
+  },
+  "preferencesTitle": "Preferences",
+  "@preferencesTitle": {
+    "description": "Shared Ledger design system: preferencesTitle"
+  },
+  "appInformationTitle": "App information",
+  "@appInformationTitle": {
+    "description": "Shared Ledger design system: appInformationTitle"
+  },
+  "personalAccountLabel": "Personal account",
+  "@personalAccountLabel": {
+    "description": "Shared Ledger design system: personalAccountLabel"
+  },
+  "defaultBadge": "Default",
+  "@defaultBadge": {
+    "description": "Shared Ledger design system: defaultBadge"
+  },
+  "currentSelectionLabel": "Current selection",
+  "@currentSelectionLabel": {
+    "description": "Shared Ledger design system: currentSelectionLabel"
+  },
+  "suggestedSelectionLabel": "Suggested",
+  "@suggestedSelectionLabel": {
+    "description": "Shared Ledger design system: suggestedSelectionLabel"
+  },
+  "supportDetailsLabel": "Support details",
+  "@supportDetailsLabel": {
+    "description": "Shared Ledger design system: supportDetailsLabel"
+  },
+  "refreshingLabel": "Refreshing…",
+  "@refreshingLabel": {
+    "description": "Shared Ledger design system: refreshingLabel"
+  },
+  "savingPreferencesLabel": "Saving preferences…",
+  "@savingPreferencesLabel": {
+    "description": "Shared Ledger design system: savingPreferencesLabel"
+  },
+  "booksEmptyExplanation": "Your books will appear here when they are available.",
+  "@booksEmptyExplanation": {
+    "description": "Shared Ledger design system: booksEmptyExplanation"
+  },
+  "loadErrorTitle": "Could not load this content",
+  "@loadErrorTitle": {
+    "description": "Shared Ledger design system: loadErrorTitle"
+  },
+  "configurationTitle": "Connection unavailable",
+  "@configurationTitle": {
+    "description": "Shared Ledger design system: configurationTitle"
+  },
+  "reviewTitle": "Review your choices",
+  "@reviewTitle": {
+    "description": "Shared Ledger design system: reviewTitle"
+  },
+  "sessionErrorTitle": "Sign-in verification failed",
+  "requestErrorTitle": "Unable to complete this request",
+  "@sessionErrorTitle": {
+    "description": "Heading for rejected authentication."
+  },
+  "@requestErrorTitle": {
+    "description": "Heading for a failed request."
+  },
+  "accountsTab": "Accounts",
+  "@accountsTab": {
+    "description": "Phase two accounting interface: accountsTab."
+  },
+  "transactionsTab": "Transactions",
+  "@transactionsTab": {
+    "description": "Phase two accounting interface: transactionsTab."
+  },
+  "addTransaction": "Add transaction",
+  "@addTransaction": {
+    "description": "Phase two accounting interface: addTransaction."
+  },
+  "addAccount": "Add account",
+  "@addAccount": {
+    "description": "Phase two accounting interface: addAccount."
+  },
+  "editAccount": "Edit account",
+  "@editAccount": {
+    "description": "Phase two accounting interface: editAccount."
+  },
+  "accountName": "Account name",
+  "@accountName": {
+    "description": "Phase two accounting interface: accountName."
+  },
+  "accountKind": "Account type",
+  "@accountKind": {
+    "description": "Phase two accounting interface: accountKind."
+  },
+  "accountCash": "Cash",
+  "@accountCash": {
+    "description": "Phase two accounting interface: accountCash."
+  },
+  "accountBank": "Bank account",
+  "@accountBank": {
+    "description": "Phase two accounting interface: accountBank."
+  },
+  "accountWallet": "Digital wallet",
+  "@accountWallet": {
+    "description": "Phase two accounting interface: accountWallet."
+  },
+  "accountOther": "Other asset",
+  "@accountOther": {
+    "description": "Phase two accounting interface: accountOther."
+  },
+  "openingBalance": "Opening balance",
+  "@openingBalance": {
+    "description": "Phase two accounting interface: openingBalance."
+  },
+  "openingDate": "Opening date",
+  "@openingDate": {
+    "description": "Phase two accounting interface: openingDate."
+  },
+  "openingType": "Opening balance",
+  "@openingType": {
+    "description": "Phase two accounting interface: openingType."
+  },
+  "incomeType": "Income",
+  "@incomeType": {
+    "description": "Phase two accounting interface: incomeType."
+  },
+  "expenseType": "Expense",
+  "@expenseType": {
+    "description": "Phase two accounting interface: expenseType."
+  },
+  "transferType": "Transfer",
+  "@transferType": {
+    "description": "Phase two accounting interface: transferType."
+  },
+  "refundType": "Refund",
+  "@refundType": {
+    "description": "Phase two accounting interface: refundType."
+  },
+  "transactionType": "Transaction type",
+  "@transactionType": {
+    "description": "Phase two accounting interface: transactionType."
+  },
+  "amountLabel": "Amount",
+  "@amountLabel": {
+    "description": "Phase two accounting interface: amountLabel."
+  },
+  "accountLabel": "Account",
+  "@accountLabel": {
+    "description": "Phase two accounting interface: accountLabel."
+  },
+  "sourceAccount": "From account",
+  "@sourceAccount": {
+    "description": "Phase two accounting interface: sourceAccount."
+  },
+  "destinationAccount": "To account",
+  "@destinationAccount": {
+    "description": "Phase two accounting interface: destinationAccount."
+  },
+  "sourcePrincipal": "Transfer principal",
+  "@sourcePrincipal": {
+    "description": "Phase two accounting interface: sourcePrincipal."
+  },
+  "destinationPrincipal": "Received principal",
+  "@destinationPrincipal": {
+    "description": "Phase two accounting interface: destinationPrincipal."
+  },
+  "categoryLabel": "Category",
+  "@categoryLabel": {
+    "description": "Phase two accounting interface: categoryLabel."
+  },
+  "categoriesTitle": "Categories",
+  "@categoriesTitle": {
+    "description": "Phase two accounting interface: categoriesTitle."
+  },
+  "counterpartyLabel": "Counterparty",
+  "@counterpartyLabel": {
+    "description": "Phase two accounting interface: counterpartyLabel."
+  },
+  "counterpartiesTitle": "Counterparties",
+  "@counterpartiesTitle": {
+    "description": "Phase two accounting interface: counterpartiesTitle."
+  },
+  "dateLabel": "Date",
+  "@dateLabel": {
+    "description": "Phase two accounting interface: dateLabel."
+  },
+  "noteLabel": "Note",
+  "@noteLabel": {
+    "description": "Phase two accounting interface: noteLabel."
+  },
+  "feeLabel": "Fee",
+  "@feeLabel": {
+    "description": "Phase two accounting interface: feeLabel."
+  },
+  "addFee": "Add separate fee",
+  "@addFee": {
+    "description": "Phase two accounting interface: addFee."
+  },
+  "feeAccount": "Fee account",
+  "@feeAccount": {
+    "description": "Phase two accounting interface: feeAccount."
+  },
+  "feeAmount": "Fee amount",
+  "@feeAmount": {
+    "description": "Phase two accounting interface: feeAmount."
+  },
+  "feeCategory": "Fee category",
+  "@feeCategory": {
+    "description": "Phase two accounting interface: feeCategory."
+  },
+  "saveEntry": "Save transaction",
+  "@saveEntry": {
+    "description": "Phase two accounting interface: saveEntry."
+  },
+  "saveChanges": "Save changes",
+  "@saveChanges": {
+    "description": "Phase two accounting interface: saveChanges."
+  },
+  "saveAccount": "Save account",
+  "@saveAccount": {
+    "description": "Phase two accounting interface: saveAccount."
+  },
+  "editAction": "Edit",
+  "@editAction": {
+    "description": "Phase two accounting interface: editAction."
+  },
+  "deleteTransaction": "Delete transaction",
+  "@deleteTransaction": {
+    "description": "Phase two accounting interface: deleteTransaction."
+  },
+  "confirmAction": "Confirm",
+  "@confirmAction": {
+    "description": "Phase two accounting interface: confirmAction."
+  },
+  "reviewTransaction": "Review transaction",
+  "@reviewTransaction": {
+    "description": "Phase two accounting interface: reviewTransaction."
+  },
+  "netAccountChanges": "Account changes after fees",
+  "@netAccountChanges": {
+    "description": "Phase two accounting interface: netAccountChanges."
+  },
+  "feeSeparateHint": "Fees are separate expense transactions. Principal amounts exclude fees.",
+  "@feeSeparateHint": {
+    "description": "Phase two accounting interface: feeSeparateHint."
+  },
+  "monthlySummary": "This month",
+  "@monthlySummary": {
+    "description": "Phase two accounting interface: monthlySummary."
+  },
+  "recentTransactions": "Recent transactions",
+  "@recentTransactions": {
+    "description": "Phase two accounting interface: recentTransactions."
+  },
+  "emptyAccountsTitle": "Add your first account",
+  "@emptyAccountsTitle": {
+    "description": "Phase two accounting interface: emptyAccountsTitle."
+  },
+  "emptyAccountsBody": "Create an account and review its opening balance to start recording.",
+  "@emptyAccountsBody": {
+    "description": "Phase two accounting interface: emptyAccountsBody."
+  },
+  "emptyTransactionsTitle": "No transactions yet",
+  "@emptyTransactionsTitle": {
+    "description": "Phase two accounting interface: emptyTransactionsTitle."
+  },
+  "emptyTransactionsBody": "Record income, an expense or a transfer in this book.",
+  "@emptyTransactionsBody": {
+    "description": "Phase two accounting interface: emptyTransactionsBody."
+  },
+  "emptySummary": "No income or expenses in this period.",
+  "@emptySummary": {
+    "description": "Phase two accounting interface: emptySummary."
+  },
+  "balanceLabel": "Balance",
+  "@balanceLabel": {
+    "description": "Phase two accounting interface: balanceLabel."
+  },
+  "archivedLabel": "Archived",
+  "@archivedLabel": {
+    "description": "Phase two accounting interface: archivedLabel."
+  },
+  "archiveLabel": "Archive",
+  "@archiveLabel": {
+    "description": "Phase two accounting interface: archiveLabel."
+  },
+  "restoreLabel": "Restore",
+  "@restoreLabel": {
+    "description": "Phase two accounting interface: restoreLabel."
+  },
+  "archiveHint": "Archived items remain visible in history.",
+  "@archiveHint": {
+    "description": "Phase two accounting interface: archiveHint."
+  },
+  "transactionDetail": "Transaction",
+  "@transactionDetail": {
+    "description": "Phase two accounting interface: transactionDetail."
+  },
+  "relatedTransactions": "Related transactions",
+  "@relatedTransactions": {
+    "description": "Phase two accounting interface: relatedTransactions."
+  },
+  "linkTransaction": "Link transaction",
+  "@linkTransaction": {
+    "description": "Phase two accounting interface: linkTransaction."
+  },
+  "relatedType": "Related",
+  "@relatedType": {
+    "description": "Phase two accounting interface: relatedType."
+  },
+  "feeRelation": "Fee link",
+  "@feeRelation": {
+    "description": "Phase two accounting interface: feeRelation."
+  },
+  "refundRelation": "Refund for",
+  "@refundRelation": {
+    "description": "Phase two accounting interface: refundRelation."
+  },
+  "removeLink": "Remove association",
+  "@removeLink": {
+    "description": "Phase two accounting interface: removeLink."
+  },
+  "addRefund": "Record refund",
+  "@addRefund": {
+    "description": "Phase two accounting interface: addRefund."
+  },
+  "refundRemaining": "Refundable amount",
+  "@refundRemaining": {
+    "description": "Phase two accounting interface: refundRemaining."
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Phase two accounting interface: historyTitle."
+  },
+  "voidedLabel": "Deleted",
+  "@voidedLabel": {
+    "description": "Phase two accounting interface: voidedLabel."
+  },
+  "revisionLabel": "Revision",
+  "@revisionLabel": {
+    "description": "Phase two accounting interface: revisionLabel."
+  },
+  "exchangeRateLabel": "Actual exchange rate",
+  "@exchangeRateLabel": {
+    "description": "Phase two accounting interface: exchangeRateLabel."
+  },
+  "includeFeesTitle": "Include related fees",
+  "@includeFeesTitle": {
+    "description": "Phase two accounting interface: includeFeesTitle."
+  },
+  "includeFeesHint": "Only selected fees change with this transaction. Unselected fees remain recorded.",
+  "@includeFeesHint": {
+    "description": "Phase two accounting interface: includeFeesHint."
+  },
+  "deleteHint": "This records a reversal and keeps the original history. Review the fees below.",
+  "@deleteHint": {
+    "description": "Phase two accounting interface: deleteHint."
+  },
+  "filtersTitle": "Filter transactions",
+  "@filtersTitle": {
+    "description": "Phase two accounting interface: filtersTitle."
+  },
+  "applyFilters": "Apply filters",
+  "@applyFilters": {
+    "description": "Phase two accounting interface: applyFilters."
+  },
+  "clearFilters": "Clear filters",
+  "@clearFilters": {
+    "description": "Phase two accounting interface: clearFilters."
+  },
+  "fromDate": "From date",
+  "@fromDate": {
+    "description": "Phase two accounting interface: fromDate."
+  },
+  "toDate": "To date",
+  "@toDate": {
+    "description": "Phase two accounting interface: toDate."
+  },
+  "allOption": "All",
+  "@allOption": {
+    "description": "Phase two accounting interface: allOption."
+  },
+  "noneOption": "None",
+  "@noneOption": {
+    "description": "Phase two accounting interface: noneOption."
+  },
+  "loadMore": "Load more",
+  "@loadMore": {
+    "description": "Phase two accounting interface: loadMore."
+  },
+  "bookManagement": "Book management",
+  "@bookManagement": {
+    "description": "Phase two accounting interface: bookManagement."
+  },
+  "selectBook": "Book",
+  "@selectBook": {
+    "description": "Phase two accounting interface: selectBook."
+  },
+  "addCategory": "Add category",
+  "@addCategory": {
+    "description": "Phase two accounting interface: addCategory."
+  },
+  "editCategory": "Edit category",
+  "@editCategory": {
+    "description": "Phase two accounting interface: editCategory."
+  },
+  "categoryName": "Category name",
+  "@categoryName": {
+    "description": "Phase two accounting interface: categoryName."
+  },
+  "parentCategory": "Parent category",
+  "@parentCategory": {
+    "description": "Phase two accounting interface: parentCategory."
+  },
+  "rootCategory": "Root category",
+  "@rootCategory": {
+    "description": "Phase two accounting interface: rootCategory."
+  },
+  "addCounterparty": "Add counterparty",
+  "@addCounterparty": {
+    "description": "Phase two accounting interface: addCounterparty."
+  },
+  "editCounterparty": "Edit counterparty",
+  "@editCounterparty": {
+    "description": "Phase two accounting interface: editCounterparty."
+  },
+  "counterpartyName": "Counterparty name",
+  "@counterpartyName": {
+    "description": "Phase two accounting interface: counterpartyName."
+  },
+  "fieldRequired": "Complete this field.",
+  "@fieldRequired": {
+    "description": "Phase two accounting interface: fieldRequired."
+  },
+  "invalidAmount": "Use a valid amount within this currency’s precision.",
+  "@invalidAmount": {
+    "description": "Phase two accounting interface: invalidAmount."
+  },
+  "invalidDate": "Use a valid YYYY-MM-DD date.",
+  "@invalidDate": {
+    "description": "Phase two accounting interface: invalidDate."
+  },
+  "selectRequired": "Choose an account and category where required.",
+  "@selectRequired": {
+    "description": "Phase two accounting interface: selectRequired."
+  },
+  "accountingConflict": "This record changed, or the operation conflicts with its related transactions. Refresh and review before retrying.",
+  "@accountingConflict": {
+    "description": "Phase two accounting interface: accountingConflict."
+  },
+  "pendingWriteTitle": "Save result not confirmed",
+  "@pendingWriteTitle": {
+    "description": "Phase two accounting interface: pendingWriteTitle."
+  },
+  "pendingWriteBody": "Retry the original request to confirm whether it was saved. Its contents and retry key are preserved.",
+  "@pendingWriteBody": {
+    "description": "Phase two accounting interface: pendingWriteBody."
+  },
+  "resolveWrite": "Confirm saved result",
+  "@resolveWrite": {
+    "description": "Phase two accounting interface: resolveWrite."
+  },
+  "noMatches": "No matching transactions",
+  "@noMatches": {
+    "description": "Phase two accounting interface: noMatches."
+  },
+  "reloadDetail": "Reload current record",
+  "@reloadDetail": {
+    "description": "Phase two accounting interface: reloadDetail."
+  },
+  "includeDeleted": "Include deleted transactions",
+  "@includeDeleted": {
+    "description": "Phase two accounting interface: includeDeleted."
+  },
+  "sameAccountError": "Choose two different accounts.",
+  "@sameAccountError": {
+    "description": "Phase two accounting interface: sameAccountError."
+  },
+  "categoryArchiveHint": "Archiving a root also archives its children.",
+  "@categoryArchiveHint": {
+    "description": "Phase two accounting interface: categoryArchiveHint."
+  },
+  "feeSelectExisting": "Link existing expense as fee",
+  "@feeSelectExisting": {
+    "description": "Phase two accounting interface: feeSelectExisting."
+  },
+  "chooseTransaction": "Choose transaction",
+  "@chooseTransaction": {
+    "description": "Phase two accounting interface: chooseTransaction."
+  },
+  "unselectedFeesRemain": "Unselected fees remain unchanged.",
+  "@unselectedFeesRemain": {
+    "description": "Phase two accounting interface: unselectedFeesRemain."
+  },
+  "viewAllTransactions": "View transactions",
+  "@viewAllTransactions": {
+    "description": "Phase two accounting interface: viewAllTransactions."
+  },
+  "byCategoryTitle": "By category",
+  "@byCategoryTitle": {
+    "description": "Phase two accounting interface: byCategoryTitle."
+  },
+  "currentBookLabel": "Current book",
+  "@currentBookLabel": {
+    "description": "Phase two accounting interface: currentBookLabel."
+  },
+  "principalLabel": "Principal",
+  "@principalLabel": {
+    "description": "Phase two accounting interface: principalLabel."
+  },
+  "resultSaved": "Saved",
+  "@resultSaved": {
+    "description": "Phase two accounting interface: resultSaved."
+  },
+  "returnToEntry": "Back to entry",
+  "@returnToEntry": {
+    "description": "Phase two accounting interface: returnToEntry."
+  },
+  "reversalLabel": "Reversal",
+  "postingLabel": "Posting",
+  "@reversalLabel": {
+    "description": "Label for an immutable reversing journal."
+  },
+  "@postingLabel": {
+    "description": "Label for an immutable posted journal."
+  }
+}
