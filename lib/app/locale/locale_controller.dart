@@ -1,26 +1,18 @@
 import 'package:flutter/widgets.dart';
-import 'package:ledger_app/l10n/generated/app_localizations.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'locale_controller.g.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ledger_app/core/reference/display_locale.dart';
 
 /// Display language, initially resolved from device language preferences.
-@Riverpod(keepAlive: true)
-class LocaleController extends _$LocaleController {
+class LocaleController extends Notifier<Locale> {
   @override
   Locale build() => _deviceLocale();
 
-  Locale _deviceLocale() {
-    final preferred = WidgetsBinding.instance.platformDispatcher.locales;
-    final resolved = basicLocaleListResolution(
-      preferred,
-      AppLocalizations.supportedLocales,
-    );
-    return preferred.firstWhere(
-      (locale) => locale.languageCode == resolved.languageCode,
-      orElse: () => resolved,
-    );
-  }
+  /// The device's preferred language, resolved to a supported one.
+  ///
+  /// Read directly instead of from a provider so a later device-locale refresh
+  /// cannot discard the language the user chose in the application.
+  Locale _deviceLocale() =>
+      resolveDeviceLocale(WidgetsBinding.instance.platformDispatcher.locales);
 
   /// Restores device language after clearing account preferences.
   void resetToDevice() => state = _deviceLocale();
@@ -50,3 +42,8 @@ class LocaleController extends _$LocaleController {
     );
   }
 }
+
+/// One retained display language for the whole application shell.
+final localeControllerProvider = NotifierProvider<LocaleController, Locale>(
+  LocaleController.new,
+);

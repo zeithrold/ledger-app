@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ledger_app/app/app.dart';
+import 'package:ledger_app/app/preferences.dart';
 import 'package:ledger_app/core/config/app_config.dart';
 import 'package:ledger_app/core/observability/telemetry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -23,7 +24,11 @@ Future<void> main() async {
   }
   validateTelemetryEnvironment(config);
   final app = ProviderScope(
-    overrides: [appConfigProvider.overrideWithValue(config)],
+    overrides: [
+      appConfigProvider.overrideWithValue(config),
+      shellPreferenceOverride,
+      shellCurrencyLocaleOverride,
+    ],
     child: config.sentryDsn.trim().isEmpty
         ? const LedgerApp()
         : SentryWidget(child: const LedgerApp()),

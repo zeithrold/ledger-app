@@ -11,7 +11,6 @@ Use Flutter **3.41.7 stable** / Dart **3.11.5**. Android builds require a compat
 cp .env.example .env.local
 flutter pub get
 flutter gen-l10n
-dart run build_runner build
 flutter devices
 flutter run -d <device-id>
 ```
@@ -98,17 +97,15 @@ Optionally add `--dart-define=SENTRY_DSN=<client-dsn>`. These values are embedde
 
 ```sh
 bash tool/check.sh
-# Regenerate while developing state logic:
-dart run build_runner watch
 # Run actual device acceptance separately:
 flutter test integration_test -d <device-id>
 ```
 
 Every UI behavior change must ship with matching tests. See [engineering rules](AGENTS.md), [testing](docs/testing.md), and [localization](docs/localization.md). CI runs the local quality checks and verifies generated output against checked-in files; device acceptance remains a separate check.
 
-The UI foundation is Flutter Material 3 with app-owned ThemeData, locally bundled Inter fonts and `lucide_icons_flutter` 3.1.19. Authentication remains isolated behind a testable hosted-browser adapter. See `pubspec.yaml` and `pubspec.lock` for the compatible dependency set. No `dependency_overrides` are used. Chart and model serialization packages are reserved for future features.
+The UI foundation is Flutter Material 3 with app-owned ThemeData, locally bundled Inter fonts and `lucide_icons_flutter` 3.1.19. Authentication remains isolated behind a testable hosted-browser adapter. See `pubspec.yaml` and `pubspec.lock` for the compatible dependency set. No `dependency_overrides` are used. `fl_chart` is retained for a later reporting phase and no widget imports it yet. There is no code generation: state, models and localization-adjacent resources are written by hand, so `build_runner`, `riverpod_generator` and `json_serializable` are deliberately absent.
 
-Retain `pubspec.lock`, `ios/Podfile.lock`, generated localization classes and `*.g.dart` in version control. Riverpod lint uses the analyzer plugin entry in `analysis_options.yaml`; no `custom_lint` setup is needed.
+Retain `pubspec.lock`, `ios/Podfile.lock` and the generated localization classes in version control. Providers are declared by hand with `NotifierProvider` and plain `Provider`, so no `*.g.dart` files are produced or committed, and `analysis_options.yaml` registers no analyzer plugins.
 
 ## Layout and boundaries
 

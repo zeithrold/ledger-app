@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:ledger_app/app/app.dart';
 import 'package:ledger_app/app/locale/locale_controller.dart';
+import 'package:ledger_app/app/preferences.dart';
 import 'package:ledger_app/app/router.dart';
 import 'package:ledger_app/app/theme/theme_mode_controller.dart';
 import 'package:ledger_app/core/auth/clerk_gateway.dart';
@@ -45,6 +46,8 @@ Future<ProviderContainer> pumpDesignApp(
           appConfigProvider.overrideWithValue(
             AppConfig.fromEnvironment(apiBaseUrl: apiBaseUrl),
           ),
+          shellPreferenceOverride,
+          shellCurrencyLocaleOverride,
           authGatewayProvider.overrideWithValue(auth ?? FakeAuth()),
           if (!liveReferences)
             referenceChoicesProvider.overrideWith((ref) async => catalog!),

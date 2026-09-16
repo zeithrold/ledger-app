@@ -1,12 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ledger_app/app/locale/locale_controller.dart';
-import 'package:ledger_app/app/theme/theme_mode_controller.dart';
 import 'package:ledger_app/core/auth/clerk_gateway.dart';
 import 'package:ledger_app/core/config/api_endpoint.dart';
 import 'package:ledger_app/core/identity/identity_controller.dart';
 import 'package:ledger_app/core/identity/ledger_api.dart';
 import 'package:ledger_app/core/network/http_client.dart';
+
+/// Display preferences owned by the application shell.
+///
+/// Core never imports the shell: the shell overrides this seam with its locale
+/// and theme controllers, and the inert default keeps core usable on its own.
+final preferenceApplierProvider = Provider<PreferenceApplier>(
+  (ref) => const PreferenceApplier(),
+);
 
 /// One controller per configured authentication boundary.
 final identityProvider = Provider<IdentityController>((ref) {
@@ -21,23 +26,7 @@ final identityProvider = Provider<IdentityController>((ref) {
             client: ref.watch(httpClientProvider),
             auth: auth,
           ),
-    applyPreferences: (preferences) {
-      ref
-          .read(localeControllerProvider.notifier)
-          .setLanguageTag(preferences.locale);
-      ref
-          .read(themeModeControllerProvider.notifier)
-          .setMode(
-            ThemeMode.values.firstWhere(
-              (mode) => mode.name == preferences.theme,
-              orElse: () => ThemeMode.system,
-            ),
-          );
-    },
-    resetPreferences: () {
-      ref.read(localeControllerProvider.notifier).resetToDevice();
-      ref.read(themeModeControllerProvider.notifier).setMode(ThemeMode.system);
-    },
+    preferences: ref.watch(preferenceApplierProvider),
   );
   ref.onDispose(controller.dispose);
   return controller;

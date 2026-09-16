@@ -325,7 +325,9 @@ IdentityController controller(
     client: MockClient(handler),
     auth: auth,
   ),
-  applyPreferences: apply ?? (_) {},
-  resetPreferences: reset ?? () {},
+  preferences: PreferenceApplier(
+    apply: apply ?? (_) {},
+    reset: reset ?? () {},
+  ),
 );
 Future<void> flush() => Future<void>.delayed(const Duration(milliseconds: 10));

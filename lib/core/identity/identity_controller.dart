@@ -16,14 +16,33 @@ enum IdentityPhase {
   error,
 }
 
+/// Display-preference boundary owned by the application shell.
+///
+/// Core hands the authenticated preference snapshot across this seam instead
+/// of importing the shell's locale and theme controllers. The default is inert
+/// so core and its tests stay usable without a shell.
+class PreferenceApplier {
+  const PreferenceApplier({this.apply = _ignore, this.reset = _ignoreReset});
+
+  /// Applies a server preference snapshot to the shell.
+  final void Function(Preferences) apply;
+
+  /// Restores device defaults after a session ends.
+  final void Function() reset;
+
+  static void _ignore(Preferences _) {}
+
+  static void _ignoreReset() {}
+}
+
 /// Owns the user context and discards all work from previous sessions.
 class IdentityController extends ChangeNotifier {
   IdentityController({
     required this.auth,
     required this.api,
-    required this.applyPreferences,
-    required this.resetPreferences,
-  }) {
+    required PreferenceApplier preferences,
+  }) : applyPreferences = preferences.apply,
+       resetPreferences = preferences.reset {
     auth.addListener(_authChanged);
     scheduleMicrotask(_authChanged);
   }

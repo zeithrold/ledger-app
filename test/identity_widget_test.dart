@@ -8,12 +8,14 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:ledger_app/app/app.dart';
 import 'package:ledger_app/app/locale/locale_controller.dart';
+import 'package:ledger_app/app/preferences.dart';
 import 'package:ledger_app/app/router.dart';
 import 'package:ledger_app/core/auth/clerk_gateway.dart';
 import 'package:ledger_app/core/config/app_config.dart';
 import 'package:ledger_app/core/identity/device_defaults.dart';
 import 'package:ledger_app/core/network/http_client.dart';
 import 'package:ledger_app/core/reference/choices.dart';
+import 'package:ledger_app/core/reference/display_locale.dart';
 
 import 'support/fakes.dart';
 import 'support/reference_fixture.dart';
@@ -29,6 +31,8 @@ Widget application(
       const AppConfig.fromEnvironment(apiBaseUrl: 'https://example.com/'),
     ),
     authGatewayProvider.overrideWithValue(auth),
+    shellPreferenceOverride,
+    shellCurrencyLocaleOverride,
     httpClientProvider.overrideWithValue(MockClient(handler)),
     deviceDefaultsProvider.overrideWith(
       (ref) async =>
@@ -496,6 +500,8 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           authGatewayProvider.overrideWithValue(FakeAuth(configured: false)),
+          shellPreferenceOverride,
+          shellCurrencyLocaleOverride,
         ],
       );
       addTearDown(container.dispose);

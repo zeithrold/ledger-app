@@ -127,6 +127,7 @@ Maintained implementation boundaries:
 ```text
 lib/app/theme/ledger_tokens.dart   Spacing, width, radius and motion tokens
 lib/app/theme/ledger_theme.dart    Palette, type roles and Material component themes
+lib/app/preferences.dart           Locale/theme wiring and the core preference seam
 lib/shared/ui/ledger_ui.dart       Pages, actions, groups, rows, badges and states
 lib/shared/choice_select.dart     Compact and searchable radio selection
 lib/app/router.dart               Persistent tab stacks and adaptive navigation
@@ -134,9 +135,19 @@ lib/features/                     Data ownership and page composition
 ```
 
 Dependency direction: primitives -> semantic theme -> shared components ->
-feature pages. Feature pages own data and actions, not colors or component style.
-Do not create wrappers that expose every underlying parameter without enforcing
-a useful contract. Keep existing identity providers as the state authority.
+feature pages and application assembly. `lib/core` holds configuration, identity
+state, transport and reference data; it must not import `lib/app`, `lib/features`
+or `lib/shared`. Core reaches the shell only through narrow seams that it declares
+itself and the application overrides at the `ProviderScope`:
+
+- `preferenceApplierProvider` applies an authenticated preference snapshot; the
+  application supplies the locale and theme controllers.
+- `currencyLocaleProvider` defaults to the device language; the application
+  overrides it so translated reference data follows the chosen display language.
+
+Feature pages own data and actions, not colors or component style. Do not create
+wrappers that expose every underlying parameter without enforcing a useful
+contract. Keep existing identity providers as the state authority.
 
 `LedgerTheme.light` and `LedgerTheme.dark` return complete `ThemeData` values.
 Material 3 is the only component foundation. Fonts and Lucide icons are bundled

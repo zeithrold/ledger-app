@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ledger_app/app/locale/locale_controller.dart';
+import 'package:ledger_app/app/preferences.dart';
 import 'package:ledger_app/app/router.dart';
 import 'package:ledger_app/core/reference/choices.dart';
 import 'package:ledger_app/core/reference/currency_catalog.dart';
+import 'package:ledger_app/core/reference/display_locale.dart';
 
 import 'support/design_harness.dart';
 import 'support/reference_fixture.dart';
@@ -104,7 +106,9 @@ void main() {
   test(
     'saved preferences retain full script and region with a shared UI fallback',
     () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [shellPreferenceOverride, shellCurrencyLocaleOverride],
+      );
       addTearDown(container.dispose);
       final controller = container.read(localeControllerProvider.notifier)
         ..setLanguageTag('zh-Hant-TW');
@@ -124,7 +128,9 @@ void main() {
   test(
     'language changes invalidate loaded labels without stale bundle reuse',
     () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [shellPreferenceOverride, shellCurrencyLocaleOverride],
+      );
       addTearDown(container.dispose);
       final controller = container.read(localeControllerProvider.notifier)
         ..setLanguageTag('zh-CN');

@@ -11,6 +11,7 @@ import 'package:ledger_app/core/accounting/models.dart';
 import 'package:ledger_app/core/accounting/money.dart';
 import 'package:ledger_app/core/identity/models.dart';
 import 'package:ledger_app/core/reference/choices.dart';
+import 'package:ledger_app/core/reference/display_locale.dart';
 import 'package:ledger_app/features/accounting/common.dart';
 import 'package:ledger_app/features/auth/failure_view.dart';
 import 'package:ledger_app/l10n/l10n.dart';

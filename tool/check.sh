@@ -12,7 +12,6 @@ fi
 
 flutter pub get --enforce-lockfile
 flutter gen-l10n
-dart run build_runner build
 dart format --output=none --set-exit-if-changed lib test integration_test test_driver
 dart analyze --fatal-infos
 flutter test --no-pub --coverage

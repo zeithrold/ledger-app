@@ -32,7 +32,7 @@
 - Tests must be deterministic and must not use developer credentials, production services or real telemetry. Use provider overrides and fakes at external boundaries.
 - Run `bash tool/check.sh` before delivery. Run affected device tests when UI flows or platform integrations change. A build is not evidence of a successful device run.
 - Report passed, failed, blocked and unrun checks separately. Missing SDKs, credentials, devices or network access are blockers, never silently skipped passes. Remote CI is unverified until it actually runs.
-- Do not hand-edit generated localization or Riverpod files. Regenerate them and retain generated files and dependency lockfiles in version control.
+- Do not hand-edit generated localization classes; regenerate them with `flutter gen-l10n` and retain them with the dependency lockfiles in version control. State and models are hand-written: declare providers with `NotifierProvider` or plain `Provider` and keep JSON parsing explicit. Do not add `build_runner`, `riverpod_generator` or `json_serializable`.
 
 ## Scope
 

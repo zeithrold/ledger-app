@@ -2,11 +2,9 @@
 // ignore_for_file: public_member_api_docs
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ledger_app/app/locale/locale_controller.dart';
 import 'package:ledger_app/core/reference/currency_catalog.dart';
-import 'package:ledger_app/l10n/generated/app_localizations.dart';
+import 'package:ledger_app/core/reference/display_locale.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -82,17 +80,6 @@ class ReferenceChoices {
         '${(minutes.abs() % 60).toString().padLeft(2, '0')}';
   }
 }
-
-// A region/script variant can refine labels within a translated UI language.
-// Unsupported UI languages use the same English fallback across all pages.
-final currencyLocaleProvider = Provider<String>((ref) {
-  final requested = ref.watch(localeControllerProvider);
-  final ui = basicLocaleListResolution([
-    requested,
-  ], AppLocalizations.supportedLocales);
-  return (requested.languageCode == ui.languageCode ? requested : ui)
-      .toLanguageTag();
-});
 
 final referenceChoicesProvider = FutureProvider<ReferenceChoices>((ref) async {
   final locale = ref.watch(currencyLocaleProvider);

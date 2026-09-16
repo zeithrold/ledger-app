@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ledger_app/app/locale/locale_controller.dart';
+import 'package:ledger_app/app/preferences.dart';
 import 'package:ledger_app/l10n/generated/app_localizations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -23,7 +24,9 @@ void sessionRecoveryTests({
     testWidgets('device language preference $languages', (tester) async {
       tester.platformDispatcher.localesTestValue = languages;
       addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [shellPreferenceOverride, shellCurrencyLocaleOverride],
+      );
       addTearDown(container.dispose);
       final resolved = basicLocaleListResolution(
         languages,
