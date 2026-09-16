@@ -34,6 +34,20 @@
 - Report passed, failed, blocked and unrun checks separately. Missing SDKs, credentials, devices or network access are blockers, never silently skipped passes. Remote CI is unverified until it actually runs.
 - Do not hand-edit generated localization classes; regenerate them with `flutter gen-l10n` and retain them with the dependency lockfiles in version control. State and models are hand-written: declare providers with `NotifierProvider` or plain `Provider` and keep JSON parsing explicit. Do not add `build_runner`, `riverpod_generator` or `json_serializable`.
 
+## Local configuration and debugging
+
+- Local configuration is never bundled. `.env.local` must not return to `pubspec.yaml` assets: a release artifact must not be able to carry whatever happens to sit in a developer's working tree.
+- Start a debug run against a local backend with an explicit file:
+
+  ```sh
+  flutter run -d <device-id> --dart-define-from-file=.env.local
+  ```
+
+  Keep `.env.local` untracked, and keep `.env.example` limited to empty values and public defaults.
+- `--dart-define` always wins over `.env.local`, so a single value can be overridden inline, including `--dart-define=SENTRY_DSN=` to disable reporting.
+- `tool/check.sh` must not require `.env.local` to exist, and no check may read it.
+- The contract revision the client sends lives in `ledger_transport.dart` and is verified against the exported pack by `tool/check_currencies.py`. Change it only together with a backend contract revision, and re-export the pack.
+
 ## Scope
 
 - Preserve unrelated changes. Do not modify the sibling backend or copy its `.env.local` unless explicitly requested.

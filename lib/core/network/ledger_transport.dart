@@ -74,6 +74,10 @@ class LedgerTransport {
           /* Proxy errors may not be JSON. */
         }
         if (response.statusCode >= 200 && response.statusCode < 300) {
+          // A successful response with no body is not a failure. Treat it
+          // as an empty object so a 204, or a body stripped in transit,
+          // cannot surface as a spurious invalid-response.
+          if (response.body.trim().isEmpty) return const <String, dynamic>{};
           if (json == null) throw const ApiFailure('invalid-response');
           return json;
         }

@@ -20,7 +20,9 @@ Do not assert private implementation details merely to increase test counts. Pre
 bash tool/check.sh
 ```
 
-The script resolves the locked dependencies, generates ARB and Riverpod code, checks formatting, runs static analysis including Riverpod lint, and runs offline tests with coverage output. Generation can update generated files; review and retain them with the change. CI runs the same command and additionally rejects generated/lockfile drift or untracked generated files. Coverage is diagnostic; the client does not claim an arbitrary coverage percentage as a quality guarantee.
+The script verifies the exported currency pack and its contract record, resolves the locked dependencies, generates localization classes, checks formatting, runs static analysis, and runs offline tests with coverage output. Generation can update `lib/l10n/generated`; review and retain those files with the change. CI runs the same command and additionally rejects lockfile drift or untracked files under `lib/`. Coverage is diagnostic; the client does not claim an arbitrary coverage percentage as a quality guarantee.
+
+`flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 
 ## Device and build checks
 

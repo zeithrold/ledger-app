@@ -40,8 +40,10 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  # Never bundle local configuration. Debug runs load it through
+  # --dart-define-from-file, which keeps developer values out of release
+  # artifacts instead of relying on a clean checkout.
   assets:
-    - .env.local
     - assets/reference/
     - assets/reference/currencies/
     - assets/reference/currencies/locales/

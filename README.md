@@ -12,7 +12,7 @@ cp .env.example .env.local
 flutter pub get
 flutter gen-l10n
 flutter devices
-flutter run -d <device-id>
+flutter run -d <device-id> --dart-define-from-file=.env.local
 ```
 
 The app is named `Ledger`, with Dart package `ledger_app`. Development identifiers are `com.zeithrold.ledger_app` (Android) and `com.zeithrold.ledgerApp` (iOS). Distribution signing and store metadata are not configured.
@@ -61,10 +61,11 @@ cp .env.example .env.local
 flutter run
 ```
 
-Debug startup loads `.env.local` with `flutter_dotenv`. The file is ignored by Git but bundled
-as a Flutter asset, so it must exist before running or building (empty values are
-valid). Fresh checkouts and CI need the copy step; `tool/check.sh` creates the
-empty template only when `.env.local` is absent and never overwrites an existing file.
+Local configuration is **not** bundled. `.env.local` is ignored by Git and is
+explicitly absent from the asset list, so a release artifact cannot carry whatever
+happens to be in a developer's working tree. A debug run loads it through
+`--dart-define-from-file=.env.local`; without that flag the app starts with empty
+configuration. Nothing needs to exist for `tool/check.sh` to pass.
 Changes require a full restart/rebuild. The existing installed app is unaffected.
 
 Explicit `--dart-define` values override `.env.local`, including an empty value such as
@@ -85,7 +86,9 @@ flutter run -d <device-id> \
   --dart-define=CLERK_PUBLISHABLE_KEY=pk_test_replace_me
 ```
 
-Use the same defines with `flutter build` for release builds. You can also pass public values using `--dart-define-from-file=.env.local`. For release builds, use an empty `.env.local` template in a clean checkout: the asset remains bundled even though release startup does not read it.
+Use the same defines with `flutter build` for release builds. Prefer
+`--dart-define-from-file=<file>` over individual defines so the same file can drive
+debug and release; the file is read at build time and never shipped as an asset.
 
 Both repositories use separate `.env.local` files and `.env.example` templates. Rename any existing App `.env` to `.env.local`; the old filename is no longer loaded. The App Clerk endpoint is public client configuration; the backend `CLERK_API_ENDPOINT` separately targets Clerk’s backend API.
 

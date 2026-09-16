@@ -6,10 +6,7 @@ cd "$check_root"
 
 python3 tool/check_currencies.py
 
-if [[ ! -f .env.local ]]; then
-  cp .env.example .env.local
-fi
-
+# Local configuration is not bundled, so no file needs to exist for a check.
 flutter pub get --enforce-lockfile
 flutter gen-l10n
 dart format --output=none --set-exit-if-changed lib test integration_test test_driver
