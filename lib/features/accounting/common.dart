@@ -79,16 +79,41 @@ class AccountingBookSelector extends StatelessWidget {
   const AccountingBookSelector(this.controller, {super.key});
   final AccountingController controller;
   @override
-  Widget build(BuildContext context) => controller.books.isEmpty
-      ? const SizedBox.shrink()
-      : ChoiceSelect(
+  Widget build(BuildContext context) {
+    final current = controller.books
+        .where((b) => b.id == controller.bookId)
+        .firstOrNull;
+    if (current == null) return const SizedBox.shrink();
+    final books = [...controller.books]
+      ..sort((a, b) => a.name.compareTo(b.name));
+    return LedgerGroup(
+      children: [
+        LedgerRow(
           key: const ValueKey('selected-book'),
-          label: context.l10n.selectBook,
-          value: controller.bookId!,
-          choices: [for (final b in controller.books) Choice(b.id, b.name)],
-          searchable: controller.books.length > 5,
-          onChanged: controller.loading ? null : controller.selectBook,
-        );
+          title: current.name,
+          subtitle:
+              '${context.l10n.currentBookLabel} · ${current.baseCurrency}',
+          enabled: !controller.loading,
+          onTap: () async {
+            if (controller.loading) return;
+            final result = await showLedgerChoice(
+              context,
+              label: context.l10n.selectBook,
+              value: current.id,
+              choices: [
+                for (final b in books)
+                  Choice(b.id, b.name, subtitle: b.baseCurrency),
+              ],
+              searchable: books.length > 5,
+            );
+            if (result != null && context.mounted) {
+              await controller.selectBook(result);
+            }
+          },
+        ),
+      ],
+    );
+  }
 }
 
 class AccountingFeedback extends StatefulWidget {
@@ -108,50 +133,56 @@ class _AccountingFeedbackState extends State<AccountingFeedback> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (c.pendingWrite != null) ...[
-          LedgerStateView(
+          LedgerNotice(
             title: context.l10n.pendingWriteTitle,
             body: context.l10n.pendingWriteBody,
-          ),
-          LedgerAction(
-            label: context.l10n.resolveWrite,
-            secondary: true,
-            onPressed: resolving
-                ? null
-                : () async {
-                    final pending = c.pendingWrite;
-                    if (pending == null) return;
-                    setState(() {
-                      resolving = true;
-                      failure = null;
-                    });
-                    try {
-                      await c.write(pending);
-                    } on ApiFailure catch (e) {
-                      if (mounted) setState(() => failure = e);
-                    } finally {
-                      if (mounted) setState(() => resolving = false);
-                    }
-                  },
+            action: LedgerAction(
+              label: context.l10n.resolveWrite,
+              secondary: true,
+              busy: resolving,
+              onPressed: resolving
+                  ? null
+                  : () async {
+                      final pending = c.pendingWrite;
+                      if (pending == null) return;
+                      setState(() {
+                        resolving = true;
+                        failure = null;
+                      });
+                      try {
+                        await c.write(pending);
+                      } on ApiFailure catch (e) {
+                        if (mounted) setState(() => failure = e);
+                      } finally {
+                        if (mounted) setState(() => resolving = false);
+                      }
+                    },
+            ),
           ),
           accountingGap,
         ],
         if (failure ?? c.failure case final error?) ...[
-          FailureView(error),
-          LedgerAction(
-            label: context.l10n.retryAction,
-            secondary: true,
-            onPressed: c.loading ? null : c.refresh,
+          FailureView(
+            error,
+            action: LedgerAction(
+              label: context.l10n.retryAction,
+              secondary: true,
+              onPressed: c.loading ? null : c.refresh,
+            ),
           ),
           accountingGap,
         ],
-        if (c.loading) ...[const LedgerLoading(), accountingGap],
+        if (c.loading && c.page == null) ...[
+          const LedgerLoading(),
+          accountingGap,
+        ],
       ],
     );
   }
 }
 
 Widget accountingBack(BuildContext context) => IconButton(
-  tooltip: context.l10n.backToHome,
+  tooltip: context.canPop() ? context.l10n.backAction : context.l10n.backToHome,
   onPressed: () {
     if (context.canPop()) {
       context.pop();
@@ -168,12 +199,16 @@ class TransactionRow extends StatelessWidget {
     required this.transaction,
     this.onTap,
     this.readOnly = false,
+    this.enabled = true,
+    this.links,
     super.key,
   });
   final AccountingController controller;
   final LedgerTransaction transaction;
   final VoidCallback? onTap;
   final bool readOnly;
+  final bool enabled;
+  final List<TransactionLink>? links;
   @override
   Widget build(BuildContext context) {
     final t = transaction;
@@ -197,13 +232,19 @@ class TransactionRow extends StatelessWidget {
             destination.currency,
           );
     final relations =
-        [...controller.page?.links ?? [], ...controller.recent?.links ?? []]
+        (links ??
+                [
+                  ...controller.page?.links ?? [],
+                  ...controller.recent?.links ?? [],
+                ])
             .where((l) => l.sourceId == t.id || l.targetId == t.id)
             .map((l) => relationKind(context, l.kind))
             .toSet()
             .join(' · ');
-    final value = destination == null ? amount : '$amount → $received';
-    return LedgerRow(
+    final accounts = destination == null
+        ? account?.name ?? ''
+        : '${account?.name ?? ''} → ${destination.name}';
+    return LedgerFinancialRow(
       key: ValueKey('transaction-${t.id}'),
       title: t.note.isNotEmpty
           ? t.note
@@ -211,10 +252,18 @@ class TransactionRow extends StatelessWidget {
           ? category
           : kind,
       subtitle:
-          '${t.date} · $kind · ${account?.name ?? ''}'
-          '${relations.isEmpty ? '' : ' · $relations'}'
-          '${t.status == 'void' ? ' · ${context.l10n.voidedLabel}' : ''}',
-      value: value,
+          '${t.date} · $kind · $accounts'
+          '${relations.isEmpty ? '' : ' · $relations'}',
+      value: destination == null
+          ? amount
+          : '${context.l10n.sourcePrincipal}: $amount',
+      secondaryValue: destination == null
+          ? null
+          : '${context.l10n.destinationPrincipal}: $received',
+      enabled: enabled,
+      trailing: t.status == 'void'
+          ? LedgerBadge(context.l10n.voidedLabel)
+          : null,
       onTap: readOnly
           ? null
           : onTap ??
@@ -243,7 +292,7 @@ class AccountingReviewLine extends StatelessWidget {
       children: [
         Text(title, style: Theme.of(context).textTheme.labelLarge),
         if (subtitle != null) Text(subtitle!),
-        Text(value, style: Theme.of(context).textTheme.titleMedium),
+        LedgerMoneyText(value),
       ],
     ),
   );

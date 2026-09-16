@@ -11,9 +11,9 @@ quiet, precise, and dependable. Familiar controls and readable content take
 priority over decorative composition. Use light mode as the primary review
 canvas, with equally intentional dark and system modes.
 
-The current primary action is opening a book. First-time setup has a separate
-primary action: reviewing preferences and creating the personal space. Future
-transaction capture must use the same foundations when that capability ships.
+The main action is recording a transaction in the selected book. Before an
+account exists, guide the user to create one. First-time setup has a separate
+primary action: reviewing preferences and creating the personal space.
 
 Design dials: variance 3/10, motion 2/10, density 5/10. These are design choices,
 not quality scores. Onboarding may have more space, but uses the same components.
@@ -75,6 +75,7 @@ evidence that the Flutter implementation or native device behavior has passed.
 ## References and decision record
 
 - [Detailed design system and rollout](docs/design-system.md)
+- [Page, field and financial component contracts](docs/ui-patterns.md)
 - [Community audit method: beautify-flutter](https://github.com/parasvishwa/beautify-flutter)
 - [Flutter accessibility](https://docs.flutter.dev/ui/accessibility)
 - [Material themes](https://api.flutter.dev/flutter/material/ThemeData-class.html)
@@ -97,3 +98,14 @@ row opening a compact choice sheet. Navigation labels honor system text scaling.
 an opaque canvas during platform transitions. Searchable selectors pin the search
 field while the heading may scroll; timezone rows separate city titles from UTC
 offsets and IANA identifiers in supporting text.
+
+2026-09-15: complete Phase 2 pages with semantic content surfaces, persistent
+form labels, explicit financial rows and local recovery. Responsive layouts
+retain every value. Row groups accept complete rows; content and form surfaces
+own their padding. Preserve drafts on conflict and original requests when their
+outcome is unknown. Native evidence covers expanded states and modal surfaces.
+
+2026-09-16: transaction details expose independent Edit and More actions buttons.
+Secondary actions move into a root-owned bottom sheet grouped by new records
+and linking existing records, preserving business eligibility and recovery.
+Buttons stack when scaled labels cannot fit; destructive actions stay separate.

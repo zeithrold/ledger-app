@@ -39,11 +39,16 @@ See [authentication and identity](docs/authentication.md) for state transitions,
 ## Design framework
 
 Read [DESIGN.md](DESIGN.md), the [design system](docs/design-system.md), and the
-[design rules](AGENTS.md) before UI work. The application uses Flutter Material 3 with Ledger-owned
+[page and component contracts](docs/ui-patterns.md) before UI work. Follow the
+[engineering rules](AGENTS.md). The application uses Flutter Material 3 with Ledger-owned
 theme tokens, responsive page structure, semantic controls, and state
 patterns. The earlier HTML study is archived outside the app in
 `../ledger-manuscript/design/`; Flutter widgets and their tests are the maintained
 implementation and acceptance evidence.
+
+For implementation and review, use the project [ledger-ui skill](.agents/skills/ledger-ui/SKILL.md)
+(`$ledger-ui` in an agent that supports project skills). It provides the workflow
+and test entry points; component contracts remain in `docs/ui-patterns.md`.
 
 ## Public client configuration
 

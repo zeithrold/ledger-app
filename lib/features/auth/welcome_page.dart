@@ -79,14 +79,10 @@ class WelcomePage extends ConsumerWidget {
           ),
           if (auth.signInFailed) ...[
             const SizedBox(height: LedgerTokens.lg),
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                l10n.browserSignInError,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              ),
+            LedgerNotice(
+              title: l10n.sessionErrorTitle,
+              body: l10n.browserSignInError,
+              isError: true,
             ),
           ],
         ],

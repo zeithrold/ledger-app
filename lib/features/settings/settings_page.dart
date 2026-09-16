@@ -39,6 +39,75 @@ class SettingsPage extends ConsumerWidget {
           }
         }
 
+        Widget preferenceRow(String field, Widget child) {
+          final pending = identity.pendingPreferences?[field];
+          var value = pending ?? '';
+          if (field == 'theme') {
+            value = switch (pending) {
+              'dark' => l10n.themeDark,
+              'light' => l10n.themeLight,
+              _ => l10n.themeSystem,
+            };
+          } else if (field == 'locale') {
+            value = pending == 'zh'
+                ? l10n.languageChinese
+                : l10n.languageEnglish;
+          } else if (field == 'timezone' && pending != null) {
+            value =
+                reference.asData?.value
+                    .timezoneChoices(language)
+                    .where((choice) => choice.value == pending)
+                    .firstOrNull
+                    ?.displayLabel ??
+                pending;
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              child,
+              if (pending != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    LedgerTokens.lg,
+                    0,
+                    LedgerTokens.lg,
+                    LedgerTokens.lg,
+                  ),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (identity.saving)
+                          Text(l10n.savingPreferencesLabel)
+                        else ...[
+                          Text(
+                            l10n.preferencesSaveFailed,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                          ),
+                          const SizedBox(height: LedgerTokens.sm),
+                          Text(l10n.preferencesPreviousKept),
+                          const SizedBox(height: LedgerTokens.sm),
+                          Text('${l10n.preferencesPendingValue}: $value'),
+                          const SizedBox(height: LedgerTokens.md),
+                          LedgerAction(
+                            key: const ValueKey('retry-preferences'),
+                            label: l10n.preferencesRetrySave,
+                            secondary: true,
+                            onPressed: busy ? null : identity.retryPreferences,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        }
+
         return LedgerPage(
           title: l10n.settingsTitle,
           actions: identity.phase != IdentityPhase.ready
@@ -62,88 +131,98 @@ class SettingsPage extends ConsumerWidget {
               ),
               const SizedBox(height: LedgerTokens.lg),
             ],
-            if (busy) ...[
+            if (identity.signingOut) ...[
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  l10n.savingPreferencesLabel,
+                  l10n.signingOutLabel,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
               const SizedBox(height: LedgerTokens.sm),
             ],
-            if (identity.error case final error?) ...[
-              FailureView(error),
+            if (identity.pendingPreferences == null &&
+                identity.error != null) ...[
+              FailureView(identity.error!),
               const SizedBox(height: LedgerTokens.lg),
             ],
             LedgerSection(
               title: l10n.preferencesTitle,
               children: [
-                ChoiceSelect(
-                  key: const ValueKey('settings-appearance'),
-                  label: l10n.appearanceTitle,
-                  value: selectedMode.name,
-                  searchable: false,
-                  optionKeyPrefix: 'theme',
-                  choices: [
-                    Choice('system', l10n.themeSystem),
-                    Choice('light', l10n.themeLight),
-                    Choice('dark', l10n.themeDark),
-                  ],
-                  onChanged: busy
-                      ? null
-                      : (value) async {
-                          if (!context.mounted ||
-                              identity.auth.sessionKey != session ||
-                              identity.saving) {
-                            return;
-                          }
-                          if (personal != null) {
-                            await save({'theme': value});
-                          } else {
-                            ref
-                                .read(themeModeControllerProvider.notifier)
-                                .setMode(ThemeMode.values.byName(value));
-                          }
-                        },
+                preferenceRow(
+                  'theme',
+                  ChoiceSelect(
+                    key: const ValueKey('settings-appearance'),
+                    label: l10n.appearanceTitle,
+                    value: selectedMode.name,
+                    searchable: false,
+                    optionKeyPrefix: 'theme',
+                    choices: [
+                      Choice('system', l10n.themeSystem),
+                      Choice('light', l10n.themeLight),
+                      Choice('dark', l10n.themeDark),
+                    ],
+                    onChanged: busy
+                        ? null
+                        : (value) async {
+                            if (!context.mounted ||
+                                identity.auth.sessionKey != session ||
+                                identity.saving) {
+                              return;
+                            }
+                            if (personal != null) {
+                              await save({'theme': value});
+                            } else {
+                              ref
+                                  .read(themeModeControllerProvider.notifier)
+                                  .setMode(ThemeMode.values.byName(value));
+                            }
+                          },
+                  ),
                 ),
-                ChoiceSelect(
-                  key: const ValueKey('settings-language'),
-                  label: l10n.languageTitle,
-                  value: language,
-                  searchable: false,
-                  optionKeyPrefix: 'locale',
-                  choices: [
-                    Choice('en', l10n.languageEnglish),
-                    Choice('zh', l10n.languageChinese),
-                  ],
-                  onChanged: busy
-                      ? null
-                      : (value) async {
-                          if (!context.mounted ||
-                              identity.auth.sessionKey != session ||
-                              identity.saving) {
-                            return;
-                          }
-                          if (personal != null) {
-                            await save({'locale': value});
-                          } else {
-                            ref
-                                .read(localeControllerProvider.notifier)
-                                .setLocale(Locale(value));
-                          }
-                        },
+                preferenceRow(
+                  'locale',
+                  ChoiceSelect(
+                    key: const ValueKey('settings-language'),
+                    label: l10n.languageTitle,
+                    value: language,
+                    searchable: false,
+                    optionKeyPrefix: 'locale',
+                    choices: [
+                      Choice('en', l10n.languageEnglish),
+                      Choice('zh', l10n.languageChinese),
+                    ],
+                    onChanged: busy
+                        ? null
+                        : (value) async {
+                            if (!context.mounted ||
+                                identity.auth.sessionKey != session ||
+                                identity.saving) {
+                              return;
+                            }
+                            if (personal != null) {
+                              await save({'locale': value});
+                            } else {
+                              ref
+                                  .read(localeControllerProvider.notifier)
+                                  .setLocale(Locale(value));
+                            }
+                          },
+                  ),
                 ),
                 if (personal != null)
                   if (reference.asData?.value case final catalog?)
-                    ChoiceSelect(
-                      key: const ValueKey('edit-timezone'),
-                      label: l10n.timezoneLabel,
-                      value: personal.preferences.timezone,
-                      choices: catalog.timezoneChoices(language),
-                      onChanged: busy
-                          ? null
-                          : (value) => save({'timezone': value}),
+                    preferenceRow(
+                      'timezone',
+                      ChoiceSelect(
+                        key: const ValueKey('edit-timezone'),
+                        label: l10n.timezoneLabel,
+                        value: personal.preferences.timezone,
+                        choices: catalog.timezoneChoices(language),
+                        onChanged: busy
+                            ? null
+                            : (value) => save({'timezone': value}),
+                      ),
                     )
                   else if (reference.hasError)
                     LedgerRow(

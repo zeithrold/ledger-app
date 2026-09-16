@@ -10,7 +10,6 @@ import 'package:ledger_app/features/auth/failure_view.dart';
 import 'package:ledger_app/l10n/l10n.dart';
 import 'package:ledger_app/shared/choice_select.dart';
 import 'package:ledger_app/shared/ui/ledger_ui.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Two steps with a session-scoped draft; the final action writes.
 class SetupPage extends ConsumerStatefulWidget {
@@ -97,10 +96,15 @@ class _SetupPageState extends ConsumerState<SetupPage> {
           ),
           const SizedBox(height: LedgerTokens.xl),
           if (reference.hasError) ...[
-            Text(l10n.catalogError),
-            TextButton(
-              onPressed: () => ref.invalidate(referenceChoicesProvider),
-              child: Text(l10n.retryAction),
+            LedgerNotice(
+              title: l10n.loadErrorTitle,
+              body: l10n.catalogError,
+              isError: true,
+              action: LedgerAction(
+                label: l10n.retryAction,
+                secondary: true,
+                onPressed: () => ref.invalidate(referenceChoicesProvider),
+              ),
             ),
           ] else if (!ready)
             const LedgerLoading()
@@ -121,9 +125,9 @@ class _SetupPageState extends ConsumerState<SetupPage> {
                 ],
               ),
               const SizedBox(height: LedgerTokens.lg),
-              LedgerRow(
-                title: l10n.currencyWarning,
-                leading: const Icon(LucideIcons.info),
+              LedgerNotice(
+                title: l10n.setupReviewNotice,
+                body: l10n.currencyWarning,
               ),
             ] else ...[
               LedgerGroup(
@@ -157,21 +161,25 @@ class _SetupPageState extends ConsumerState<SetupPage> {
                 ],
               ),
               const SizedBox(height: LedgerTokens.xl),
-              Text(
-                l10n.currencySummary,
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              const SizedBox(height: LedgerTokens.sm),
-              Text(
-                catalog
-                    .currencyChoices(currencyLocale)
-                    .firstWhere((c) => c.value == _currency)
-                    .label,
+              LedgerSurface(
+                child: LedgerReadOnlyField(
+                  label: l10n.currencySummary,
+                  value: catalog
+                      .currencyChoices(currencyLocale)
+                      .firstWhere((c) => c.value == _currency)
+                      .label,
+                ),
               ),
             ],
             if (_fallback) ...[
               const SizedBox(height: LedgerTokens.lg),
-              Text(l10n.defaultsWarning),
+              LedgerNotice(
+                title: l10n.setupFallbackNotice,
+                body:
+                    '${l10n.defaultsWarning}\n'
+                    '${l10n.currencyLabel}: $_currency\n'
+                    '${l10n.timezoneLabel}: $_timezone',
+              ),
             ],
           ],
           if (identity.error case final error?) ...[

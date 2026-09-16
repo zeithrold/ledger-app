@@ -60,16 +60,21 @@ class _BooksPageState extends ConsumerState<BooksPage> {
     return LedgerPage(
       title: l10n.booksTitle,
       leading: IconButton(
-        tooltip: l10n.backToHome,
-        onPressed: () => context.pop(),
+        tooltip: context.canPop() ? l10n.backAction : l10n.backToHome,
+        onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         icon: const Icon(LucideIcons.arrowLeft),
       ),
       actions: [
         IconButton(
           key: const ValueKey('refresh-books'),
-          tooltip: l10n.refreshAction,
+          tooltip: _loading ? l10n.refreshingLabel : l10n.refreshAction,
           onPressed: _loading ? null : _load,
-          icon: const Icon(LucideIcons.refreshCw),
+          icon: _loading
+              ? const SizedBox.square(
+                  dimension: LedgerTokens.icon,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(LucideIcons.refreshCw),
         ),
       ],
       children: [
@@ -80,23 +85,15 @@ class _BooksPageState extends ConsumerState<BooksPage> {
           ),
         ),
         const SizedBox(height: LedgerTokens.lg),
-        if (_loading && _books != null) ...[
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              l10n.refreshingLabel,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          const SizedBox(height: LedgerTokens.sm),
-        ],
         if (_failure case final failure?) ...[
-          FailureView(failure),
-          const SizedBox(height: LedgerTokens.md),
-          LedgerAction(
-            label: l10n.retryAction,
-            secondary: true,
-            onPressed: _loading ? null : _load,
+          FailureView(
+            failure,
+            action: LedgerAction(
+              key: const ValueKey('retry-books'),
+              label: l10n.retryAction,
+              secondary: true,
+              onPressed: _loading ? null : _load,
+            ),
           ),
           const SizedBox(height: LedgerTokens.lg),
         ],
@@ -200,7 +197,7 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage> {
       title: _book?.name ?? l10n.bookDetailsTitle,
       leading: IconButton(
         key: const ValueKey('book-back'),
-        tooltip: l10n.backToHome,
+        tooltip: context.canPop() ? l10n.backAction : l10n.backToHome,
         onPressed: () {
           if (context.canPop()) {
             context.pop();
@@ -213,9 +210,14 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage> {
       actions: [
         IconButton(
           key: const ValueKey('refresh-book'),
-          tooltip: l10n.refreshAction,
+          tooltip: _loading ? l10n.refreshingLabel : l10n.refreshAction,
           onPressed: _loading ? null : _load,
-          icon: const Icon(LucideIcons.refreshCw),
+          icon: _loading
+              ? const SizedBox.square(
+                  dimension: LedgerTokens.icon,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(LucideIcons.refreshCw),
         ),
       ],
       children: [
@@ -231,22 +233,20 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage> {
           LedgerSection(
             title: l10n.bookDetailsTitle,
             children: [
-              LedgerRow(title: l10n.currencyLabel, subtitle: book.baseCurrency),
+              LedgerRow(title: l10n.currencyLabel, value: book.baseCurrency),
             ],
           ),
         ],
-        if (_loading)
-          if (_book == null)
-            const LedgerLoading()
-          else
-            Semantics(liveRegion: true, child: Text(l10n.refreshingLabel)),
+        if (_loading && _book == null) const LedgerLoading(),
         if (_failure case final failure?) ...[
-          FailureView(failure),
-          const SizedBox(height: LedgerTokens.lg),
-          LedgerAction(
-            label: l10n.retryAction,
-            secondary: true,
-            onPressed: _loading ? null : _load,
+          FailureView(
+            failure,
+            action: LedgerAction(
+              key: const ValueKey('retry-book'),
+              label: l10n.retryAction,
+              secondary: true,
+              onPressed: _loading ? null : _load,
+            ),
           ),
         ],
       ],

@@ -167,24 +167,9 @@ void main() {
       container.read(routerProvider).go('/entry?edit=transfer');
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey('entry-amount')), '120');
-      final checkbox = find.byType(CheckboxListTile);
-      await tester.scrollUntilVisible(
-        checkbox,
-        120,
-        scrollable: find
-            .descendant(
-              of: find.byType(CustomScrollView).last,
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      final checkbox = find.byKey(const ValueKey('include-fee-fee'));
       expect(tester.widget<CheckboxListTile>(checkbox).value, isFalse);
-      await tester.ensureVisible(checkbox);
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(of: checkbox, matching: find.byType(Checkbox)),
-      );
-      await tester.pumpAndSettle();
+      await press(tester, 'include-fee-fee');
       expect(tester.widget<CheckboxListTile>(checkbox).value, isTrue);
       await reveal(tester, 'fee-amount-fee');
       await tester.enterText(find.byKey(const ValueKey('fee-amount-fee')), '2');

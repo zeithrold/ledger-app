@@ -117,3 +117,93 @@ Flutter surface before capture and the integration binding restores it at test
 teardown. Captures contain the Flutter surface; OS keyboard and system chrome
 need separate device inspection.
 This fixture flow does not validate the real hosted authentication service.
+
+## Accounting page refinement
+
+The `phase2_*_refinement_test.dart` suites cover financial content retention,
+surface insets, field validation and focus, exact fee and reversal review,
+conflict draft recovery, transactional filtering, pagination and child-return
+refresh. `design_harness.reveal` completes scheduled caret scrolling before
+moving to the next control; `press` asserts that its target is actually hittable.
+
+For native page, large-text, calendar and recovery acceptance, run:
+
+```sh
+LEDGER_VISUAL_OUTPUT=/path/to/manuscript/evidence \
+flutter drive --driver=test_driver/visual_driver.dart \
+  --target=integration_test/phase2_ui_refinement_test.dart -d <device-id> \
+  --dart-define=CAPTURE_VISUALS=true
+```
+
+This suite includes the authentication/settings visual flows and accounting
+pages in both languages and themes. Its financial data and request failures
+are deterministic HTTP fixtures. Review both initial and scrolled states,
+including selected fees, history, confirmation and partial-load recovery.
+The visual matrix does not assert OS keyboard visibility. Its captures contain
+Flutter surfaces and cannot establish that a software keyboard was displayed.
+
+The same target also runs `phase2_ui_mutation_test.dart`: account opening, a
+transfer with a fee, original-key recovery after a lost response, a refund, a
+correction and a reversal. That target can also run independently. These checks
+assert native UI transitions and exact outgoing fixture requests; they do not
+certify backend balance calculations. The isolated Go/PostgreSQL flow in
+`accounting_test.dart` remains a separate integration check.
+
+### Actual OS keyboard acceptance
+
+Run `phase2_keyboard_test.dart` in a separate native test process. It uses the
+same deterministic accounting HTTP fixture, opens the amount field by tapping,
+and never uses `tester.enterText`, whose synthetic editing values can desynchronize
+the real input method state.
+A single test checks both languages and themes at 200% text. It requires positive
+native keyboard insets, a focused visible amount field above the keyboard,
+keyboard dismissal and a platform back event returning to Home. Enable the
+simulator or emulator software keyboard; missing keyboard insets fail the test.
+No real backend or financial writes are involved.
+
+```sh
+LEDGER_VISUAL_OUTPUT=/path/to/manuscript/keyboard-evidence \
+LEDGER_NATIVE_CAPTURE_PORT=18765 \
+LEDGER_NATIVE_CAPTURE_DEVICE=<device-id> \
+LEDGER_NATIVE_CAPTURE_PLATFORM=ios \
+flutter drive --driver=test_driver/visual_driver.dart \
+  --target=integration_test/phase2_keyboard_test.dart -d <device-id> \
+  --dart-define=CAPTURE_VISUALS=true \
+  --dart-define=NATIVE_CAPTURE_URL=http://127.0.0.1:18765
+```
+
+The driver's optional local capture server saves `*-native.png` using the device
+screenshot command while the keyboard remains open. Inspect those files for OS
+keyboard appearance and native chrome. Ordinary `*.png` files still contain only
+the Flutter surface. Without `NATIVE_CAPTURE_URL`, the strict keyboard-inset and
+navigation assertions still run, but OS screenshots are not produced.
+
+For Android, set `LEDGER_NATIVE_CAPTURE_PLATFORM=android` and use `adb reverse`
+for the chosen port so the device can reach the driver's loopback server. Set
+`LEDGER_ADB` when adb is outside PATH. Remove the reverse mapping after the run.
+Use only local ephemeral fixture ports, and close them after the run.
+
+## Action groups and transaction action menu
+
+`test/button_group_test.dart` verifies responsive geometry, label retention,
+independent callbacks, disabled/busy state, accessible names and loading values,
+RTL order and keyboard activation. It covers both languages and themes at narrow,
+large-text and wide sizes. Busy must not move or resize the group.
+
+Run the affected native transaction-detail flows on both platforms:
+
+```sh
+LEDGER_VISUAL_OUTPUT=/path/to/manuscript/transaction-actions \
+flutter drive --no-pub --driver=test_driver/visual_driver.dart \
+  --target=integration_test/button_group_test.dart -d <device-id> \
+  --dart-define=CAPTURE_VISUALS=true --dart-define=SENTRY_DSN=
+```
+
+The four language/theme cases each exercise 100% and 200% text, capture the action buttons and
+grouped bottom sheet, open all five applicable actions and return to the
+transaction. Data comes from a deterministic read-only HTTP fixture. These
+checks complement the shared component contract in [ui-patterns.md](ui-patterns.md).
+
+`test/transaction_actions_test.dart` covers menu routing, dismissal, duplicate
+activation, eligibility, scope changes, refresh blocking, and both locales in
+light/dark/system themes at narrow, large-text, landscape and wide sizes.

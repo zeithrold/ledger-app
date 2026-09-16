@@ -58,52 +58,59 @@ void main() {
   });
   for (final language in ['en', 'zh']) {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
-      testWidgets('$language $mode title and controls share a center', (
-        tester,
-      ) async {
-        tester.view.physicalSize = const Size(320, 568);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final title = language == 'zh' ? '账本' : 'Books';
-        for (final scale in [1.0, 2.0]) {
-          await tester.pumpWidget(
-            MaterialApp(
-              theme: mode == ThemeMode.dark
-                  ? LedgerTheme.dark
-                  : LedgerTheme.light,
-              home: MediaQuery(
-                data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-                child: LedgerPage(
-                  title: title,
-                  leading: IconButton(
-                    key: const ValueKey('back'),
-                    onPressed: () {},
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  actions: [
-                    IconButton(
-                      key: const ValueKey('refresh'),
+      testWidgets(
+        '$language $mode header controls align and long titles keep width',
+        (
+          tester,
+        ) async {
+          tester.view.physicalSize = const Size(320, 568);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final title = language == 'zh' ? '账本' : 'Books';
+          for (final scale in [1.0, 2.0]) {
+            await tester.pumpWidget(
+              MaterialApp(
+                theme: mode == ThemeMode.dark
+                    ? LedgerTheme.dark
+                    : LedgerTheme.light,
+                home: MediaQuery(
+                  data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+                  child: LedgerPage(
+                    title: title,
+                    leading: IconButton(
+                      key: const ValueKey('back'),
                       onPressed: () {},
-                      icon: const Icon(Icons.refresh),
+                      icon: const Icon(Icons.arrow_back),
                     ),
-                  ],
-                  children: const [],
+                    actions: [
+                      IconButton(
+                        key: const ValueKey('refresh'),
+                        onPressed: () {},
+                        icon: const Icon(Icons.refresh),
+                      ),
+                    ],
+                    children: const [],
+                  ),
                 ),
               ),
-            ),
-          );
-          final center = tester.getCenter(find.text(title)).dy;
-          expect(
-            tester.getCenter(find.byKey(const ValueKey('back'))).dy,
-            closeTo(center, .01),
-          );
-          expect(
-            tester.getCenter(find.byKey(const ValueKey('refresh'))).dy,
-            closeTo(center, .01),
-          );
-          expect(tester.takeException(), isNull);
-        }
-      });
+            );
+            final heading = tester.getRect(find.text(title));
+            final back = tester.getRect(find.byKey(const ValueKey('back')));
+            final refresh = tester.getRect(
+              find.byKey(const ValueKey('refresh')),
+            );
+            expect(back.center.dy, closeTo(refresh.center.dy, .01));
+            if (language == 'en' && scale == 2) {
+              expect(heading.top, greaterThan(back.bottom));
+              expect(heading.left, 16);
+              expect(heading.width, 288);
+            } else {
+              expect(back.center.dy, closeTo(heading.center.dy, .01));
+            }
+            expect(tester.takeException(), isNull);
+          }
+        },
+      );
       testWidgets('$language $mode timezone hierarchy and pinned search', (
         tester,
       ) async {

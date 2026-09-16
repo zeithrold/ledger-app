@@ -59,12 +59,19 @@ class SessionGate extends ConsumerWidget {
                 identity.phase == IdentityPhase.authentication) ...[
               const LedgerLoading(),
               const SizedBox(height: LedgerTokens.lg),
-              Text(l10n.loadingLabel),
+              Text(
+                identity.signingOut ? l10n.signingOutLabel : l10n.loadingLabel,
+              ),
             ],
             if (identity.phase == IdentityPhase.error) ...[
-              if (identity.error case final error?) FailureView(error),
-              const SizedBox(height: LedgerTokens.lg),
-              LedgerAction(label: l10n.retryAction, onPressed: identity.retry),
+              if (identity.error case final error?)
+                FailureView(
+                  error,
+                  action: LedgerAction(
+                    label: l10n.retryAction,
+                    onPressed: identity.retry,
+                  ),
+                ),
             ],
             if (identity.auth.sessionKey != null) ...[
               const SizedBox(height: LedgerTokens.lg),

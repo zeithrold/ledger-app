@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ledger UI"
+  short_description: "Review and implement Ledger Flutter UI contracts"
+  default_prompt: "Use $ledger-ui to review or improve the affected Ledger App interface and verify its component and state contracts."

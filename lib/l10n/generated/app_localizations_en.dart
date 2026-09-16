@@ -270,7 +270,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportDetailsLabel => 'Support details';
 
   @override
-  String get refreshingLabel => 'Refreshing…';
+  String get refreshingLabel => 'Refreshing';
 
   @override
   String get savingPreferencesLabel => 'Saving preferences…';
@@ -647,4 +647,332 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postingLabel => 'Posting';
+
+  @override
+  String get detailStatusPosted => 'Recorded';
+
+  @override
+  String get detailRelatedUnavailable => 'Related transaction unavailable';
+
+  @override
+  String get detailRelatedRetryBody =>
+      'Your transaction is available. Retry loading this related record.';
+
+  @override
+  String get detailFeesIncomplete =>
+      'Load all linked fees before reviewing a reversal.';
+
+  @override
+  String get detailNoRelations => 'No related transactions yet.';
+
+  @override
+  String get detailReversalChanges => 'Changes after reversal';
+
+  @override
+  String get detailRecordedAt => 'Recorded at';
+
+  @override
+  String get detailLinkHint =>
+      'Use Link on a transaction to add this relationship. Linking does not change balances.';
+
+  @override
+  String get detailLinkFeeHint =>
+      'Choose a recorded expense to link as a fee. Its existing amount stays unchanged.';
+
+  @override
+  String get detailLinkAction => 'Link';
+
+  @override
+  String get detailLinkSource => 'Linking from';
+
+  @override
+  String get detailLinkEmpty =>
+      'No eligible transactions are available. Return to the transaction to continue.';
+
+  @override
+  String get detailSaving => 'Saving…';
+
+  @override
+  String get preferencesSaveFailed => 'Preference not saved';
+
+  @override
+  String get preferencesRetrySave => 'Retry saving';
+
+  @override
+  String get preferencesPreviousKept =>
+      'Your previous setting is still active. Retry to apply this selection.';
+
+  @override
+  String get preferencesPendingValue => 'Selected value';
+
+  @override
+  String get signingOutLabel => 'Signing out…';
+
+  @override
+  String get setupReviewNotice => 'Review before continuing';
+
+  @override
+  String get setupFallbackNotice => 'Review device defaults';
+
+  @override
+  String get backAction => 'Back';
+
+  @override
+  String get noActiveAccountsTitle => 'No active accounts';
+
+  @override
+  String get noActiveAccountsBody =>
+      'All accounts in this book are archived. Review your accounts or add an account to record a transaction.';
+
+  @override
+  String get viewAccountsAction => 'View accounts';
+
+  @override
+  String get archivedAccountBody =>
+      'This account is archived. Its balance and transaction history remain available. Edit the account to restore it.';
+
+  @override
+  String get accountTransactionsEmptyBody =>
+      'Transactions for this account will appear here.';
+
+  @override
+  String get accountUnavailableTitle => 'Account unavailable';
+
+  @override
+  String get accountUnavailableBody =>
+      'This account is not available in the selected book. Return to your accounts to continue.';
+
+  @override
+  String get noMatchingTransactionsBody =>
+      'No transactions match these filters. Adjust or clear the filters to see more results.';
+
+  @override
+  String get dateRangeTitle => 'Date range';
+
+  @override
+  String get transactionConditionsTitle => 'Transaction filters';
+
+  @override
+  String get displayOptionsTitle => 'Display options';
+
+  @override
+  String get filterDateFormatHint => 'YYYY-MM-DD. Leave blank for any date.';
+
+  @override
+  String get invalidDateRange =>
+      'The end date must be on or after the start date.';
+
+  @override
+  String get appliedFiltersTitle => 'Applied filters';
+
+  @override
+  String get loadMoreErrorTitle => 'More transactions could not be loaded';
+
+  @override
+  String get loadMoreErrorBody =>
+      'Your current results are still available. Try loading the next page again.';
+
+  @override
+  String get retryLoadMoreAction => 'Retry loading';
+
+  @override
+  String get filterApplyErrorTitle => 'Filters could not be applied';
+
+  @override
+  String get filterApplyErrorBody =>
+      'Your filter choices and previous results are still available. Try applying the filters again.';
+
+  @override
+  String get selectFieldPlaceholder => 'Choose an option';
+
+  @override
+  String get selectionUnavailable => 'Selection unavailable';
+
+  @override
+  String get formReviewField => 'Review this value and try again.';
+
+  @override
+  String get formReviewFields => 'Review your entries';
+
+  @override
+  String get formSaving => 'Saving…';
+
+  @override
+  String get formResolveSave => 'Check save result';
+
+  @override
+  String get formPendingBody =>
+      'The save result is not confirmed. Your entries are temporarily locked. Check the result using the original request.';
+
+  @override
+  String get formChooseCurrencyAccount =>
+      'Choose an account to set the currency first.';
+
+  @override
+  String get formPositiveAmount => 'Enter an amount greater than zero.';
+
+  @override
+  String get formRefundLimitError =>
+      'The amount exceeds the refundable amount shown above.';
+
+  @override
+  String get formChooseDate => 'Choose a date';
+
+  @override
+  String get formDateHint => 'Use YYYY-MM-DD, or choose a date.';
+
+  @override
+  String get formAmountExample => 'Example:';
+
+  @override
+  String get formSignedAmountHint => 'Use a positive or negative amount.';
+
+  @override
+  String get formAccountCurrency => 'Account currency';
+
+  @override
+  String get formAccountCurrencyHint =>
+      'The account currency cannot change after creation.';
+
+  @override
+  String get formOpeningHint =>
+      'Optional. Leave blank or enter zero if there is no opening balance. Use a negative amount for a negative opening balance.';
+
+  @override
+  String get formCategoryTypeFixed =>
+      'This category uses the transaction type of your entry.';
+
+  @override
+  String get formOptional => 'Optional';
+
+  @override
+  String get formActive => 'Active';
+
+  @override
+  String get formConflictTitle => 'Review the latest record';
+
+  @override
+  String get formConflictBody =>
+      'Your entries are kept. Load the latest record and review the differences before saving again.';
+
+  @override
+  String get formConflictReview =>
+      'Loading the latest record does not replace your entries. Choose which values to keep, then review and save again.';
+
+  @override
+  String get formLatestValues => 'Latest saved values';
+
+  @override
+  String get formYourDraft => 'Your entries';
+
+  @override
+  String get formUseLatest => 'Use latest values';
+
+  @override
+  String get formKeepDraft => 'Keep my entries';
+
+  @override
+  String get formReviewLatest => 'Load and compare';
+
+  @override
+  String get formSelectionUnavailable =>
+      'This choice is no longer available. Choose another value.';
+
+  @override
+  String get formCategoryMismatch =>
+      'The new category does not match this transaction type. Choose a matching category.';
+
+  @override
+  String get formLatestFee => 'Latest saved fee';
+
+  @override
+  String get formDraftFee => 'Your fee entries';
+
+  @override
+  String get formUnavailableFees =>
+      'Some fees can no longer be corrected with this transaction. Their entries are kept for reference and will not be submitted.';
+
+  @override
+  String get formPreviousEntry => 'Previous transaction';
+
+  @override
+  String get formUpdatedEntry => 'Updated transaction';
+
+  @override
+  String get formPreviousFee => 'Previous fee';
+
+  @override
+  String get formUpdatedFee => 'Updated fee';
+
+  @override
+  String get formCorrectTransaction => 'Correct transaction';
+
+  @override
+  String get formSaveCorrection => 'Review correction';
+
+  @override
+  String get formOriginalExpense => 'Original expense';
+
+  @override
+  String get formLinkedTransaction => 'Linked transaction';
+
+  @override
+  String get formCorrectionHint =>
+      'Corrections keep the transaction history. Only fees you select will change.';
+
+  @override
+  String get formNoAccounts => 'An account is needed';
+
+  @override
+  String get formCreateAccountHint =>
+      'Create an account before recording this transaction.';
+
+  @override
+  String get formTransactionDetails => 'Transaction details';
+
+  @override
+  String get formAdditionalDetails => 'Additional details';
+
+  @override
+  String get formOpeningAccountFixed =>
+      'An opening balance stays with its original account.';
+
+  @override
+  String get formRefundCategoryFixed =>
+      'Refunds keep the original expense category.';
+
+  @override
+  String get formSameCurrencyPrincipal =>
+      'For the same currency, both principal amounts must match. Record fees separately.';
+
+  @override
+  String get formRecordUnavailable =>
+      'This transaction was deleted and cannot be changed. Your entries are kept here for reference. Return to the transaction list to continue.';
+
+  @override
+  String get detailMoreActions => 'More actions';
+
+  @override
+  String get detailNewRecords => 'New records';
+
+  @override
+  String get detailLinkExisting => 'Link existing records';
+
+  @override
+  String get detailAddFee => 'Add fee';
+
+  @override
+  String get detailAddFeeHint => 'Record a new fee linked to this transaction';
+
+  @override
+  String get detailLinkTransaction => 'Link transaction';
+
+  @override
+  String get detailLinkFee => 'Link fee';
+
+  @override
+  String get detailMenuLinkFeeHint => 'Select a fee from existing transactions';
+
+  @override
+  String get detailCloseActions => 'Close';
 }

@@ -130,6 +130,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => AccountingGate(
           fullscreen: true,
           child: EntryEditor(
+            key: ValueKey(state.uri.toString()),
             editId: state.uri.queryParameters['edit'],
             originalId: state.uri.queryParameters['original'],
             feeForId: state.uri.queryParameters['fee_for'],

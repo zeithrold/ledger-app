@@ -76,6 +76,10 @@ Future<ProviderContainer> pumpDesignApp(
 }
 
 Future<void> reveal(WidgetTester tester, String key) async {
+  // Text entry schedules a caret scroll after the next layout. Complete that
+  // work before scrolling to the next control, as a user's later gesture does.
+  await tester.pump();
+  await tester.pump();
   final target = find.byKey(ValueKey(key));
   if (target.evaluate().isEmpty) {
     await tester.scrollUntilVisible(
@@ -95,6 +99,7 @@ Future<void> reveal(WidgetTester tester, String key) async {
 
 Future<void> press(WidgetTester tester, String key) async {
   await reveal(tester, key);
+  expect(find.byKey(ValueKey(key)).hitTestable(), findsOneWidget);
   await tester.tap(find.byKey(ValueKey(key)));
   await tester.pumpAndSettle();
 }

@@ -242,6 +242,10 @@ abstract final class LedgerTheme {
         iconColor: muted,
         minTileHeight: LedgerTokens.rowHeight,
       ),
+      badgeTheme: BadgeThemeData(
+        backgroundColor: scheme.primaryContainer,
+        textColor: scheme.onPrimaryContainer,
+      ),
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith(
           (states) =>

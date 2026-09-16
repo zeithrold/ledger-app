@@ -28,10 +28,16 @@ class AccountingController extends ChangeNotifier {
   String? bookId;
   int _generation = 0;
   int _loadSequence = 0;
+  int _querySequence = 0;
+  int _moreSequence = 0;
+  int _loadedPageCount = 1;
   bool _disposed = false;
   bool loading = false;
   bool loadingMore = false;
+  bool filtering = false;
   ApiFailure? failure;
+  ApiFailure? moreFailure;
+  ApiFailure? filterFailure;
   List<Book> books = [];
   List<CurrencyInfo> currencies = [];
   List<AssetAccount> accounts = [];
@@ -79,8 +85,14 @@ class AccountingController extends ChangeNotifier {
     books = [];
     filters = {};
     failure = null;
+    moreFailure = null;
+    filterFailure = null;
     loading = false;
     loadingMore = false;
+    filtering = false;
+    _querySequence++;
+    _moreSequence++;
+    _loadedPageCount = 1;
   }
 
   Future<void> selectBook(String id) async {
@@ -124,8 +136,13 @@ class AccountingController extends ChangeNotifier {
     if (!ready || _disposed) return;
     final generation = _generation;
     final sequence = ++_loadSequence;
+    final querySequence = _querySequence;
+    final appliedFilters = Map<String, String>.of(filters);
     final currentBook = bookId!;
     loading = true;
+    _moreSequence++;
+    loadingMore = false;
+    moreFailure = null;
     failure = null;
     notifyListeners();
     try {
@@ -135,7 +152,7 @@ class AccountingController extends ChangeNotifier {
         api.accounts(currentBook),
         api.categories(currentBook),
         api.counterparties(),
-        api.transactions(currentBook, filters),
+        transactionRange(appliedFilters, pageCount: _loadedPageCount),
         api.transactions(currentBook, {'limit': '5'}),
         api.summary(currentBook, {
           'from': '${today.substring(0, 7)}-01',
@@ -150,7 +167,11 @@ class AccountingController extends ChangeNotifier {
       accounts = values[2] as List<AssetAccount>;
       categories = values[3] as List<LedgerCategory>;
       counterparties = values[4] as List<LedgerCounterparty>;
-      page = values[5] as LedgerTransactionPage;
+      if (querySequence == _querySequence &&
+          !filtering &&
+          mapEquals(filters, appliedFilters)) {
+        page = values[5] as LedgerTransactionPage;
+      }
       recent = values[6] as LedgerTransactionPage;
       summary = values[7] as LedgerSummary;
     } on ApiFailure catch (error) {
@@ -170,17 +191,81 @@ class AccountingController extends ChangeNotifier {
     }
   }
 
-  Future<void> filter(Map<String, String> value) async {
-    filters = Map.of(value);
-    page = null;
-    await refresh();
+  Future<bool> filter(Map<String, String> value) async {
+    if (!ready || _disposed || filtering || page == null) return false;
+    final generation = _generation;
+    final sequence = ++_querySequence;
+    final candidate = Map<String, String>.of(value);
+    _moreSequence++;
+    loadingMore = false;
+    moreFailure = null;
+    filtering = true;
+    filterFailure = null;
+    notifyListeners();
+    try {
+      final next = await transactionRange(candidate);
+      if (_disposed ||
+          generation != _generation ||
+          sequence != _querySequence) {
+        return false;
+      }
+      filters = candidate;
+      page = next;
+      _loadedPageCount = 1;
+      return true;
+    } on ApiFailure catch (error) {
+      if (!_disposed &&
+          generation == _generation &&
+          sequence == _querySequence) {
+        filterFailure = error;
+        identity.handleFailure(error);
+      }
+      return false;
+    } finally {
+      if (!_disposed &&
+          generation == _generation &&
+          sequence == _querySequence) {
+        filtering = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Re-reads the visible page range without dropping already loaded rows.
+  Future<LedgerTransactionPage> transactionRange(
+    Map<String, String> query, {
+    int pageCount = 1,
+  }) async {
+    if (!ready || _disposed) throw const ApiFailure('session-changed');
+    final generation = _generation;
+    final currentBook = bookId!;
+    final gateway = api;
+    var result = await gateway.transactions(currentBook, query);
+    final cursors = <String>{};
+    for (var i = 1; i < pageCount && result.nextCursor != null; i++) {
+      if (_disposed || generation != _generation) {
+        throw const ApiFailure('session-changed');
+      }
+      final cursor = result.nextCursor!;
+      if (!cursors.add(cursor)) break;
+      final next = await gateway.transactions(currentBook, {
+        ...query,
+        'cursor': cursor,
+      });
+      result = mergeTransactionPages(result, next);
+    }
+    if (_disposed || generation != _generation) {
+      throw const ApiFailure('session-changed');
+    }
+    return result;
   }
 
   Future<void> more() async {
     final cursor = page?.nextCursor;
-    if (cursor == null || loading || loadingMore || !ready) return;
+    if (cursor == null || loading || loadingMore || filtering || !ready) return;
     final generation = _generation;
-    final sequence = _loadSequence;
+    final sequence = ++_moreSequence;
+    final querySequence = _querySequence;
     loadingMore = true;
     notifyListeners();
     try {
@@ -188,42 +273,26 @@ class AccountingController extends ChangeNotifier {
         ...filters,
         'cursor': cursor,
       });
-      if (_disposed || generation != _generation || sequence != _loadSequence) {
+      if (_disposed ||
+          generation != _generation ||
+          sequence != _moreSequence ||
+          querySequence != _querySequence) {
         return;
       }
-      final old = page!;
-      final seen = old.transactions.map((t) => t.id).toSet();
-      old.transactions.addAll(next.transactions.where((t) => seen.add(t.id)));
-      final linkIds = old.links.map((l) => l.id).toSet();
-      old.links.addAll(next.links.where((l) => linkIds.add(l.id)));
-      page = LedgerTransactionPage.fromJson({
-        'transactions': [
-          for (final t in old.transactions)
-            {
-              'id': t.id,
-              'revision': t.revision,
-              'status': t.status,
-              'data': t.data,
-            },
-        ],
-        'links': [
-          for (final l in old.links)
-            {
-              'id': l.id,
-              'source_id': l.sourceId,
-              'target_id': l.targetId,
-              'kind': l.kind,
-            },
-        ],
-        'next_cursor': next.nextCursor,
-      });
+      page = mergeTransactionPages(page!, next);
+      moreFailure = null;
+      _loadedPageCount++;
     } on ApiFailure catch (error) {
-      if (!_disposed && generation == _generation) {
-        failure = error;
+      if (!_disposed &&
+          generation == _generation &&
+          sequence == _moreSequence) {
+        moreFailure = error;
         identity.handleFailure(error);
       }
     } finally {
-      if (!_disposed && generation == _generation) {
+      if (!_disposed &&
+          generation == _generation &&
+          sequence == _moreSequence) {
         loadingMore = false;
         notifyListeners();
       }
@@ -258,4 +327,40 @@ class AccountingController extends ChangeNotifier {
     identity.removeListener(_identityChanged);
     super.dispose();
   }
+}
+
+/// Keeps the union of records and typed relations when another page arrives.
+LedgerTransactionPage mergeTransactionPages(
+  LedgerTransactionPage current,
+  LedgerTransactionPage next,
+) {
+  final transactions = {
+    for (final row in current.transactions) row.id: row,
+    for (final row in next.transactions) row.id: row,
+  };
+  final links = {
+    for (final link in current.links) link.id: link,
+    for (final link in next.links) link.id: link,
+  };
+  return LedgerTransactionPage.fromJson({
+    'transactions': [
+      for (final row in transactions.values)
+        {
+          'id': row.id,
+          'revision': row.revision,
+          'status': row.status,
+          'data': row.data,
+        },
+    ],
+    'links': [
+      for (final link in links.values)
+        {
+          'id': link.id,
+          'source_id': link.sourceId,
+          'target_id': link.targetId,
+          'kind': link.kind,
+        },
+    ],
+    'next_cursor': next.nextCursor,
+  });
 }

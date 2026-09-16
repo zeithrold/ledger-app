@@ -1,5 +1,4 @@
-// Business entry controls remain separate from the immutable posting
-// representation.
+// Entry controls preserve exact amounts and explicit correction scope.
 // ignore_for_file: public_member_api_docs
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ import 'package:ledger_app/core/reference/choices.dart';
 import 'package:ledger_app/features/accounting/common.dart';
 import 'package:ledger_app/features/accounting/forms.dart';
 import 'package:ledger_app/l10n/l10n.dart';
-import 'package:ledger_app/shared/choice_select.dart';
 import 'package:ledger_app/shared/ui/ledger_ui.dart';
 
 class EntryEditor extends ConsumerStatefulWidget {
@@ -36,10 +34,11 @@ class _FeeDraft {
   }) : amount = TextEditingController(text: amount),
        date = TextEditingController(text: date),
        note = TextEditingController(text: transaction?.note ?? '');
-  final LedgerTransaction? transaction;
+  LedgerTransaction? transaction;
   String account;
   String category;
   bool selected = false;
+  bool available = true;
   final TextEditingController amount;
   final TextEditingController date;
   final TextEditingController note;
@@ -50,7 +49,15 @@ class _FeeDraft {
   }
 }
 
+class _EntrySnapshot {
+  const _EntrySnapshot(this.detail, this.fees, this.original);
+  final LedgerTransactionDetail detail;
+  final List<LedgerTransaction> fees;
+  final LedgerTransactionDetail? original;
+}
+
 class _EntryEditorState extends LedgerMutationState<EntryEditor> {
+  final GlobalKey _unavailableNoticeKey = GlobalKey();
   final amount = TextEditingController();
   final toAmount = TextEditingController();
   final date = TextEditingController();
@@ -62,12 +69,27 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
   String counterparty = '';
   String? originalId;
   String? refundCurrency;
+  String? refundLimit;
   LedgerTransaction? existing;
+  LedgerTransaction? sourceTransaction;
   bool initialized = false;
   bool loadingEntry = false;
   bool loadedExisting = false;
+  bool reviewing = false;
+  bool recovering = false;
+  bool sourceUnavailable = false;
   _FeeDraft? newFee;
   final List<_FeeDraft> relatedFees = [];
+
+  bool get needsSource =>
+      widget.editId != null ||
+      widget.originalId != null ||
+      widget.feeForId != null;
+  bool get correctionConflict =>
+      revisionReviewRequired && widget.editId != null;
+  @override
+  bool get frozen =>
+      super.frozen || reviewing || recovering || sourceUnavailable;
 
   @override
   void dispose() {
@@ -89,69 +111,147 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
     account = c.accounts.where((a) => !a.archived).firstOrNull?.id ?? '';
     category =
         c.categories
-            .where((v) => !v.archived && v.kind == 'expense')
+            .where(
+              (v) =>
+                  !v.archived &&
+                  v.kind == 'expense' &&
+                  (widget.feeForId == null || v.systemCode == 'fees'),
+            )
             .firstOrNull
             ?.id ??
         '';
     originalId = widget.originalId;
     if (originalId != null) kind = 'refund';
-    if (widget.editId != null || originalId != null) {
+    if (needsSource) {
       loadingEntry = true;
       unawaited(Future<void>.microtask(loadExisting));
     }
   }
 
-  Future<void> loadExisting() async {
+  Future<_EntrySnapshot> fetchSnapshot() async {
     final scope = ledger.scope;
-    try {
-      final detail = await ledger.api.detail(
-        ledger.bookId!,
-        widget.editId ?? originalId!,
-      );
-      if (!mounted || scope != ledger.scope) return;
-      final t = detail.transaction;
-      if (widget.editId != null) {
-        existing = t;
-        kind = t.kind;
+    final api = ledger.api;
+    final book = ledger.bookId!;
+    void checkScope() {
+      if (!mounted || ledger.scope != scope) {
+        throw const ApiFailure('session-changed');
+      }
+    }
+
+    final detail = await api.detail(
+      book,
+      widget.editId ?? widget.originalId ?? widget.feeForId!,
+    );
+    checkScope();
+    final fees = <LedgerTransaction>[];
+    if (widget.editId != null) {
+      for (final link in detail.links.where(
+        (v) => v.kind == 'fee' && v.sourceId == detail.transaction.id,
+      )) {
+        final fee = await api.detail(book, link.targetId);
+        checkScope();
+        if (fee.transaction.status == 'posted') fees.add(fee.transaction);
+      }
+    }
+    final original =
+        widget.editId != null && detail.transaction.kind == 'refund'
+        ? await api.detail(
+            book,
+            detail.transaction.data['original_id'] as String,
+          )
+        : null;
+    checkScope();
+    return _EntrySnapshot(detail, fees, original);
+  }
+
+  _FeeDraft feeDraft(LedgerTransaction fee) => _FeeDraft(
+    transaction: fee,
+    account: fee.accountId,
+    category: fee.data['category_id'] as String,
+    date: fee.date,
+    amount: fee.amount,
+  );
+
+  void applySnapshot(_EntrySnapshot snapshot, {bool keepDraft = false}) {
+    final t = snapshot.detail.transaction;
+    sourceUnavailable = t.status != 'posted';
+    if (widget.editId != null) {
+      existing = t;
+      sourceTransaction = snapshot.original?.transaction ?? t;
+      kind = t.kind;
+      originalId = t.data['original_id'] as String?;
+      if (!keepDraft) {
         account = t.accountId;
         amount.text = t.amount;
         destination = t.data['to_account_id'] as String? ?? '';
         toAmount.text = t.data['to_amount'] as String? ?? '';
         date.text = t.date;
         note.text = t.note;
-        originalId = t.data['original_id'] as String?;
         counterparty = t.data['counterparty_id'] as String? ?? '';
+        category = t.data['category_id'] as String? ?? '';
         for (final f in relatedFees) {
           f.dispose();
         }
         relatedFees.clear();
-        for (final link in detail.links.where(
-          (v) => v.kind == 'fee' && v.sourceId == t.id,
-        )) {
-          final fee = await ledger.api.detail(ledger.bookId!, link.targetId);
-          if (!mounted || scope != ledger.scope) return;
-          if (fee.transaction.status == 'posted') {
-            relatedFees.add(
-              _FeeDraft(
-                transaction: fee.transaction,
-                account: fee.transaction.accountId,
-                category: fee.transaction.data['category_id'] as String,
-                date: fee.transaction.date,
-                amount: fee.transaction.amount,
-              ),
-            );
-          }
-        }
-      } else {
-        refundCurrency = ledger.account(t.accountId)?.currency;
-        account = t.accountId;
-        amount.text = detail.refundableAmount ?? '';
       }
-      category = t.data['category_id'] as String? ?? '';
-      loadedExisting = true;
+      if (kind == 'opening') account = t.accountId;
+      if (kind == 'refund') {
+        category = t.data['category_id'] as String? ?? '';
+        refundCurrency = ledger.account(sourceTransaction!.accountId)?.currency;
+        final remaining = snapshot.original?.refundableAmount;
+        if (remaining != null && refundCurrency != null) {
+          final scale = ledger.scale(refundCurrency!);
+          refundLimit =
+              (LedgerMoney.parse(remaining, scale) +
+                      LedgerMoney.parse(t.amount, scale))
+                  .decimal;
+        }
+      }
+      for (final f in relatedFees) {
+        final latest = snapshot.fees
+            .where((v) => v.id == f.transaction?.id)
+            .firstOrNull;
+        f.available = latest != null;
+        if (latest != null) {
+          f.transaction = latest;
+        } else {
+          f.selected = false;
+        }
+      }
+      for (final fee in snapshot.fees) {
+        if (!relatedFees.any((v) => v.transaction?.id == fee.id)) {
+          relatedFees.add(feeDraft(fee));
+        }
+      }
+    } else {
+      sourceTransaction = t;
+      if (widget.originalId != null) {
+        refundCurrency = ledger.account(t.accountId)?.currency;
+        refundLimit = snapshot.detail.refundableAmount;
+        account = t.accountId;
+        amount.text = refundLimit ?? '';
+        category = t.data['category_id'] as String? ?? '';
+      } else if (widget.feeForId != null) {
+        account = t.accountId;
+      }
+    }
+    loadedExisting = true;
+  }
+
+  Future<void> loadExisting() async {
+    final scope = ledger.scope;
+    try {
+      final snapshot = await fetchSnapshot();
+      if (!mounted || scope != ledger.scope) return;
+      setState(() {
+        applySnapshot(snapshot);
+        error = null;
+      });
     } on ApiFailure catch (e) {
-      ledger.identity.handleFailure(e);
-      if (mounted && scope == ledger.scope) setState(() => error = e);
+      if (mounted && scope == ledger.scope) {
+        ledger.identity.handleFailure(e);
+        setState(() => error = e);
+      }
     } finally {
       if (mounted && scope == ledger.scope) {
         setState(() => loadingEntry = false);
@@ -169,14 +269,15 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
     return m.decimal;
   }
 
+  String accountName(String id) => ledger.account(id)?.name ?? '';
+
   List<Choice> accountChoices(String selected) => [
     for (final a in ledger.accounts.where(
       (v) => !v.archived || v.id == selected,
     ))
       Choice(
         a.id,
-        '${a.name} · '
-        '${a.currency}'
+        '${a.name} · ${a.currency}'
         '${a.archived ? ' · ${context.l10n.archivedLabel}' : ''}',
       ),
   ];
@@ -189,6 +290,11 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
         ledger.categoryName(c.id, Localizations.localeOf(context).languageCode),
       ),
   ];
+  String? requiredChoice(String? value, List<Choice> choices) =>
+      requiredText(value) ??
+      (choices.any((v) => v.value == value)
+          ? null
+          : context.l10n.formSelectionUnavailable);
 
   Json feeInput(_FeeDraft f) => {
     'kind': 'expense',
@@ -201,23 +307,172 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
       'counterparty_id': cp,
   };
 
+  String formattedEntryAmount(Json input) => amountText(
+    ledger,
+    input['amount'] as String,
+    ledger.account(input['account_id'] as String)!.currency,
+  );
+
+  Widget reviewEntry(String title, Json input) => Padding(
+    padding: const EdgeInsets.only(bottom: LedgerTokens.lg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: LedgerTokens.sm),
+        Text(
+          '${ledger.account(input['account_id'] as String)?.name ?? ''}'
+          ' · ${input['occurred_on']}',
+        ),
+        if (input['category_id'] case final String id)
+          Text(
+            ledger.categoryName(
+              id,
+              Localizations.localeOf(context).languageCode,
+            ),
+          ),
+        LedgerMoneyText(formattedEntryAmount(input)),
+        if (input['to_account_id'] case final String target) ...[
+          const SizedBox(height: LedgerTokens.sm),
+          Text(ledger.account(target)?.name ?? ''),
+          LedgerMoneyText(
+            amountText(
+              ledger,
+              input['to_amount'] as String,
+              ledger.account(target)!.currency,
+            ),
+          ),
+        ],
+        if (input['note'] case final String note)
+          if (note.isNotEmpty) Text(note),
+      ],
+    ),
+  );
+
+  Future<void> resolveConflict() async {
+    if (frozen) return;
+    final scope = ledger.scope;
+    setState(() => recovering = true);
+    try {
+      final latest = await fetchSnapshot();
+      if (!mounted || ledger.scope != scope) return;
+      if (latest.detail.transaction.status != 'posted') {
+        FocusManager.instance.primaryFocus?.unfocus();
+        setState(() {
+          sourceUnavailable = true;
+          sourceTransaction = latest.detail.transaction;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || ledger.scope != scope) return;
+          final notice = _unavailableNoticeKey.currentContext;
+          if (notice != null) {
+            unawaited(Scrollable.ensureVisible(notice, alignment: .1));
+          }
+        });
+        return;
+      }
+      final missingSelected = relatedFees
+          .where(
+            (f) =>
+                f.selected &&
+                !latest.fees.any((t) => t.id == f.transaction?.id),
+          )
+          .toList();
+      setState(() => recovering = false);
+      final keep = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          scrollable: true,
+          title: Text(context.l10n.formConflictTitle),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(context.l10n.formConflictReview),
+              accountingGap,
+              reviewEntry(
+                context.l10n.formLatestValues,
+                latest.detail.transaction.data,
+              ),
+              AccountingReviewLine(
+                title: context.l10n.formYourDraft,
+                subtitle:
+                    '${ledger.account(account)?.name ?? ''} · ${date.text}',
+                value:
+                    '${amount.text} ${ledger.account(account)?.currency ?? ''}',
+              ),
+              if (kind == 'transfer')
+                AccountingReviewLine(
+                  title: context.l10n.destinationPrincipal,
+                  subtitle: ledger.account(destination)?.name,
+                  value:
+                      '${toAmount.text} '
+                      '${ledger.account(destination)?.currency ?? ''}',
+                ),
+              if (note.text.isNotEmpty) Text(note.text),
+              for (final f in relatedFees.where((v) => v.selected)) ...[
+                if (latest.fees
+                        .where((t) => t.id == f.transaction?.id)
+                        .firstOrNull
+                    case final LedgerTransaction current)
+                  reviewEntry(context.l10n.formLatestFee, current.data),
+                AccountingReviewLine(
+                  title: context.l10n.formDraftFee,
+                  subtitle:
+                      '${ledger.account(f.account)?.name ?? ''}'
+                      ' · ${f.date.text}',
+                  value:
+                      '${f.amount.text} '
+                      '${ledger.account(f.account)?.currency ?? ''}',
+                ),
+                if (f.note.text.isNotEmpty) Text(f.note.text),
+              ],
+              if (missingSelected.isNotEmpty)
+                Text(context.l10n.formUnavailableFees),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.cancelAction),
+            ),
+            TextButton(
+              key: const ValueKey('conflict-use-latest'),
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(context.l10n.formUseLatest),
+            ),
+            FilledButton(
+              key: const ValueKey('conflict-keep-draft'),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(context.l10n.formKeepDraft),
+            ),
+          ],
+        ),
+      );
+      if (!mounted || scope != ledger.scope || keep == null) return;
+      setState(() {
+        applySnapshot(latest, keepDraft: keep);
+        revisionReviewRequired = false;
+        error = null;
+      });
+    } on ApiFailure catch (e) {
+      if (mounted && scope == ledger.scope) {
+        ledger.identity.handleFailure(e);
+        if (mounted && scope == ledger.scope) setState(() => error = e);
+      }
+    } finally {
+      if (mounted) setState(() => recovering = false);
+    }
+  }
+
   Future<void> save() async {
+    if (saving || reviewing || recovering || sourceUnavailable) return;
     if (request != null) {
       await perform(request!.method, request!.path, request!.body);
       return;
     }
-    if (!formKey.currentState!.validate()) return;
-    if (account.isEmpty ||
-        ((kind == 'income' || kind == 'expense' || kind == 'refund') &&
-            category.isEmpty) ||
-        (kind == 'transfer' && destination.isEmpty)) {
-      setState(() => validation = context.l10n.selectRequired);
-      return;
-    }
-    if (kind == 'transfer' && account == destination) {
-      setState(() => validation = context.l10n.sameAccountError);
-      return;
-    }
+    setState(() => validation = null);
+    if (!validateForm() || correctionConflict) return;
     Json input;
     Json? fee;
     List<Json> fees;
@@ -239,7 +494,7 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
       };
       fee = newFee?.selected == true ? feeInput(newFee!) : null;
       fees = [
-        for (final f in relatedFees.where((v) => v.selected))
+        for (final f in relatedFees.where((v) => v.selected && v.available))
           {
             'id': f.transaction!.id,
             'expected_revision': f.transaction!.revision,
@@ -251,6 +506,7 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
       return;
     }
     final scope = ledger.scope;
+    setState(() => reviewing = true);
     final accepted = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -261,24 +517,18 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
           children: [
             Text('${transactionKind(context, kind)} · ${date.text}'),
             accountingGap,
-            if (existing != null) ...[
-              Text(context.l10n.unselectedFeesRemain),
-              accountingGap,
-            ],
-            Text(
-              context.l10n.netAccountChanges,
-              style: Theme.of(context).textTheme.titleMedium,
+            if (existing != null)
+              reviewEntry(context.l10n.formPreviousEntry, existing!.data),
+            reviewEntry(
+              existing == null
+                  ? context.l10n.formTransactionDetails
+                  : context.l10n.formUpdatedEntry,
+              input,
             ),
-            ...previewChanges(input, fee, fees),
             if (kind == 'transfer') ...[
-              accountingGap,
               AccountingReviewLine(
                 title: context.l10n.sourcePrincipal,
-                value: amountText(
-                  ledger,
-                  input['amount'] as String,
-                  ledger.account(account)!.currency,
-                ),
+                value: formattedEntryAmount(input),
               ),
               AccountingReviewLine(
                 title: context.l10n.destinationPrincipal,
@@ -289,26 +539,35 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
                 ),
               ),
             ],
-            if (fee != null)
-              AccountingReviewLine(
-                title: context.l10n.feeAmount,
-                subtitle: ledger.account(fee['account_id'] as String)!.name,
-                value: amountText(
-                  ledger,
-                  fee['amount'] as String,
-                  ledger.account(fee['account_id'] as String)!.currency,
-                ),
+            if (fee != null) reviewEntry(context.l10n.feeAmount, fee),
+            for (final f in fees) ...[
+              const Divider(),
+              reviewEntry(
+                context.l10n.formPreviousFee,
+                relatedFees
+                    .firstWhere((v) => v.transaction!.id == f['id'])
+                    .transaction!
+                    .data,
               ),
-            for (final f in relatedFees.where((v) => !v.selected))
-              AccountingReviewLine(
-                title: context.l10n.unselectedFeesRemain,
-                subtitle: ledger.account(f.account)?.name,
-                value: f.transaction!.amount,
-              ),
-            if (fee != null) ...[
-              accountingGap,
-              Text(context.l10n.feeSeparateHint),
+              reviewEntry(context.l10n.formUpdatedFee, f['entry'] as Json),
             ],
+            if (fee != null || fees.isNotEmpty)
+              Text(context.l10n.feeSeparateHint),
+            accountingGap,
+            Text(
+              context.l10n.netAccountChanges,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            ...previewChanges(input, fee, fees),
+            for (final f in relatedFees.where(
+              (v) => !v.selected && v.available,
+            ))
+              reviewEntry(
+                context.l10n.unselectedFeesRemain,
+                f.transaction!.data,
+              ),
+            if (relatedFees.any((v) => !v.available))
+              Text(context.l10n.formUnavailableFees),
           ],
         ),
         actions: [
@@ -324,7 +583,9 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
         ],
       ),
     );
-    if (accepted != true || !mounted || scope != ledger.scope) return;
+    if (!mounted || scope != ledger.scope) return;
+    setState(() => reviewing = false);
+    if (accepted != true) return;
     final path = ledger.api.bookPath(
       ledger.bookId!,
       existing == null
@@ -389,34 +650,99 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
     ];
   }
 
-  List<Widget> feeFields(_FeeDraft f) => [
-    ChoiceSelect(
-      key: ValueKey('fee-account-${f.transaction?.id ?? 'new'}'),
-      label: context.l10n.feeAccount,
-      value: f.account,
-      choices: accountChoices(f.account),
-      onChanged: frozen ? null : (v) => setState(() => f.account = v),
-    ),
-    ChoiceSelect(
-      label: context.l10n.feeCategory,
-      value: f.category,
-      choices: categoryChoices('expense', f.category),
-      onChanged: frozen ? null : (v) => setState(() => f.category = v),
-    ),
-    accountingGap,
-    field(
-      context.l10n.feeAmount,
-      f.amount,
-      money: true,
-      validator: requiredText,
-      keyName: f.transaction == null
-          ? 'fee-amount'
-          : 'fee-amount-${f.transaction!.id}',
-    ),
-    field(context.l10n.dateLabel, f.date, validator: dateText),
-    if (f.transaction != null)
-      field(context.l10n.noteLabel, f.note, multiline: true),
-  ];
+  List<Widget> feeFields(_FeeDraft f) {
+    final suffix = f.transaction?.id ?? 'new';
+    final feeIndex = relatedFees
+        .where((v) => v.selected && v.available)
+        .toList()
+        .indexOf(f);
+    final path = f.transaction == null ? 'fee' : 'fees[$feeIndex].entry';
+    final currency = ledger.account(f.account)?.currency ?? '';
+    return [
+      selectField(
+        id: 'fee-account-$suffix',
+        label: context.l10n.feeAccount,
+        value: f.account,
+        choices: accountChoices(f.account),
+        onChanged: (v) => setState(() => f.account = v),
+        validator: (v) => requiredChoice(v, accountChoices(f.account)),
+        aliases: ['account_id', '$path.account_id'],
+      ),
+      selectField(
+        id: 'fee-category-$suffix',
+        label: context.l10n.feeCategory,
+        value: f.category,
+        choices: categoryChoices('expense', f.category),
+        onChanged: (v) => setState(() => f.category = v),
+        validator: (v) =>
+            requiredChoice(v, categoryChoices('expense', f.category)),
+        aliases: ['category_id', '$path.category_id'],
+      ),
+      field(
+        context.l10n.feeAmount,
+        f.amount,
+        money: true,
+        currency: currency,
+        validator: (v) => amountValidator(v, currency),
+        keyName: f.transaction == null
+            ? 'fee-amount'
+            : 'fee-amount-${f.transaction!.id}',
+        aliases: ['amount', '$path.amount'],
+      ),
+      field(
+        context.l10n.dateLabel,
+        f.date,
+        date: true,
+        validator: dateText,
+        keyName: 'fee-date-$suffix',
+        aliases: ['occurred_on', '$path.occurred_on'],
+      ),
+      field(
+        context.l10n.noteLabel,
+        f.note,
+        multiline: true,
+        keyName: 'fee-note-$suffix',
+        helperText: context.l10n.formOptional,
+        aliases: ['note', '$path.note'],
+      ),
+    ];
+  }
+
+  Future<void> createCategory() async {
+    final type = kind;
+    final scope = ledger.scope;
+    final result = await context.push<Json>('/categories/new?kind=$type');
+    if (!mounted || ledger.scope != scope || result == null) return;
+    final id = result['id'] as String?;
+    final item = ledger.categories
+        .where((v) => v.id == id && v.kind == type && !v.archived)
+        .firstOrNull;
+    if (item == null || kind != type) {
+      setState(() => validation = context.l10n.formCategoryMismatch);
+      return;
+    }
+    setState(() {
+      category = item.id;
+      validation = null;
+    });
+    fieldChanged('entry-category');
+  }
+
+  Future<void> createCounterparty() async {
+    final scope = ledger.scope;
+    final result = await context.push<Json>('/counterparties/new');
+    if (!mounted || ledger.scope != scope || result == null) return;
+    final id = result['id'] as String?;
+    final item = ledger.counterparties
+        .where((v) => v.id == id && !v.archived)
+        .firstOrNull;
+    if (item == null) {
+      setState(() => validation = context.l10n.formSelectionUnavailable);
+      return;
+    }
+    setState(() => counterparty = item.id);
+    fieldChanged('entry-counterparty');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -425,11 +751,25 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
       listenable: c,
       builder: (context, _) {
         initialize(c);
+        final currency = c.account(account)?.currency ?? '';
+        final destinationCurrency = c.account(destination)?.currency ?? '';
+        final accountOptions = accountChoices(account)
+            .where(
+              (v) =>
+                  kind != 'refund' ||
+                  refundCurrency == null ||
+                  c.account(v.value)?.currency == refundCurrency,
+            )
+            .toList();
+        final categoryOptions = categoryChoices(
+          kind == 'refund' ? 'expense' : kind,
+          category,
+        );
         return Form(
           key: formKey,
           child: LedgerPage(
             title: widget.editId != null
-                ? context.l10n.saveChanges
+                ? context.l10n.formCorrectTransaction
                 : kind == 'refund'
                 ? context.l10n.addRefund
                 : widget.feeForId != null
@@ -437,242 +777,357 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
                 : context.l10n.addTransaction,
             leading: accountingBack(context),
             maxWidth: LedgerTokens.formWidth,
+            eagerChildren: true,
             children: [
               if (!initialized) AccountingFeedback(c),
-              ...feedback(),
               if (loadingEntry) const LedgerLoading(),
               if (initialized &&
                   !loadingEntry &&
-                  (widget.editId == null && widget.originalId == null ||
-                      loadedExisting)) ...[
-                if (widget.editId == null &&
-                    originalId == null &&
-                    widget.feeForId == null)
-                  ChoiceSelect(
-                    key: const ValueKey('entry-kind'),
-                    label: context.l10n.transactionType,
-                    value: kind,
-                    searchable: false,
-                    choices: [
-                      for (final k in ['expense', 'income', 'transfer'])
-                        Choice(k, transactionKind(context, k)),
-                    ],
-                    onChanged: frozen
-                        ? null
-                        : (v) => setState(() {
-                            kind = v;
-                            category = '';
-                          }),
+                  (!needsSource || loadedExisting)) ...[
+                if (sourceUnavailable) ...[
+                  LedgerNotice(
+                    key: _unavailableNoticeKey,
+                    title: context.l10n.voidedLabel,
+                    body: context.l10n.formRecordUnavailable,
                   ),
-                ChoiceSelect(
-                  key: const ValueKey('entry-account'),
-                  label: kind == 'transfer'
-                      ? context.l10n.sourceAccount
-                      : context.l10n.accountLabel,
-                  value: account,
-                  choices: accountChoices(account)
-                      .where(
-                        (v) =>
-                            kind != 'refund' ||
-                            refundCurrency == null ||
-                            ledger.account(v.value)?.currency == refundCurrency,
-                      )
-                      .toList(),
-                  onChanged: frozen || kind == 'opening'
-                      ? null
-                      : (v) => setState(() => account = v),
-                ),
-                accountingGap,
-                field(
-                  kind == 'transfer'
-                      ? context.l10n.sourcePrincipal
-                      : context.l10n.amountLabel,
-                  amount,
-                  money: true,
-                  validator: requiredText,
-                  keyName: 'entry-amount',
-                ),
-                if (kind == 'transfer') ...[
-                  ChoiceSelect(
-                    key: const ValueKey('entry-destination'),
-                    label: context.l10n.destinationAccount,
-                    value: destination,
-                    choices: accountChoices(
-                      destination,
-                    ).where((v) => v.value != account).toList(),
-                    onChanged: frozen
-                        ? null
-                        : (v) => setState(() => destination = v),
-                  ),
-                  accountingGap,
-                  field(
-                    context.l10n.destinationPrincipal,
-                    toAmount,
-                    money: true,
-                    validator: requiredText,
-                    keyName: 'entry-to-amount',
-                  ),
-                  Text(context.l10n.feeSeparateHint),
                   accountingGap,
                 ],
-                if (kind == 'expense' ||
-                    kind == 'income' ||
-                    kind == 'refund') ...[
-                  ChoiceSelect(
-                    key: const ValueKey('entry-category'),
-                    label: context.l10n.categoryLabel,
-                    value: category,
-                    choices: categoryChoices(
-                      kind == 'refund' ? 'expense' : kind,
-                      category,
-                    ),
-                    onChanged: frozen || kind == 'refund'
-                        ? null
-                        : (v) => setState(() => category = v),
+                if (sourceTransaction case final LedgerTransaction source)
+                  LedgerFormSection(
+                    title: kind == 'refund'
+                        ? context.l10n.formOriginalExpense
+                        : widget.feeForId != null
+                        ? context.l10n.formLinkedTransaction
+                        : context.l10n.formPreviousEntry,
+                    children: [
+                      reviewEntry(
+                        transactionKind(context, source.kind),
+                        source.data,
+                      ),
+                      if (kind == 'refund' &&
+                          refundLimit != null &&
+                          refundCurrency != null)
+                        LedgerReadOnlyField(
+                          label: context.l10n.refundRemaining,
+                          value: amountText(c, refundLimit!, refundCurrency!),
+                        ),
+                      if (existing != null)
+                        Text(context.l10n.formCorrectionHint),
+                    ],
                   ),
-                  if (kind != 'refund')
-                    TextButton(
+                if (accountOptions.isEmpty) ...[
+                  LedgerNotice(
+                    title: context.l10n.formNoAccounts,
+                    body: context.l10n.formCreateAccountHint,
+                    action: TextButton(
                       onPressed: frozen
                           ? null
-                          : () async {
-                              final result = await context.push<Json>(
-                                '/categories/new?kind=$kind',
-                              );
-                              if (mounted && result != null) {
-                                setState(
-                                  () => category = result['id'] as String,
-                                );
-                              }
-                            },
-                      child: Text(context.l10n.addCategory),
+                          : () => context.push('/accounts/new'),
+                      child: Text(context.l10n.addAccount),
                     ),
+                  ),
+                  accountingGap,
                 ],
-                ChoiceSelect(
-                  label: context.l10n.counterpartyLabel,
-                  value: counterparty,
-                  choices: [
-                    Choice('', context.l10n.noneOption),
-                    for (final v in c.counterparties.where(
-                      (v) => !v.archived || v.id == counterparty,
-                    ))
-                      Choice(v.id, v.name),
-                  ],
-                  onChanged: frozen
-                      ? null
-                      : (v) => setState(() => counterparty = v),
-                ),
-                TextButton(
-                  onPressed: frozen
-                      ? null
-                      : () async {
-                          final result = await context.push<Json>(
-                            '/counterparties/new',
-                          );
-                          if (mounted && result != null) {
-                            setState(
-                              () => counterparty = result['id'] as String,
-                            );
+                LedgerFormSection(
+                  title: context.l10n.formTransactionDetails,
+                  children: [
+                    if (widget.editId == null &&
+                        originalId == null &&
+                        widget.feeForId == null)
+                      selectField(
+                        id: 'entry-kind',
+                        label: context.l10n.transactionType,
+                        value: kind,
+                        searchable: false,
+                        choices: [
+                          for (final k in ['expense', 'income', 'transfer'])
+                            Choice(k, transactionKind(context, k)),
+                        ],
+                        onChanged: (v) => setState(() {
+                          kind = v;
+                          category = '';
+                        }),
+                        aliases: const ['kind', 'entry.kind'],
+                      ),
+                    selectField(
+                      id: 'entry-account',
+                      label: kind == 'transfer'
+                          ? context.l10n.sourceAccount
+                          : context.l10n.accountLabel,
+                      value: account,
+                      choices: accountOptions,
+                      readOnly: kind == 'opening',
+                      helperText: kind == 'opening'
+                          ? context.l10n.formOpeningAccountFixed
+                          : null,
+                      onChanged: (v) => setState(() {
+                        account = v;
+                        if (destination == account) destination = '';
+                      }),
+                      validator: (v) => requiredChoice(v, accountOptions),
+                      aliases: const ['account_id', 'entry.account_id'],
+                    ),
+                    field(
+                      kind == 'transfer'
+                          ? context.l10n.sourcePrincipal
+                          : context.l10n.amountLabel,
+                      amount,
+                      money: true,
+                      currency: currency,
+                      signed: kind == 'opening',
+                      validator: (v) => amountValidator(
+                        v,
+                        currency,
+                        signed: kind == 'opening',
+                        maximum: kind == 'refund' ? refundLimit : null,
+                      ),
+                      keyName: 'entry-amount',
+                      aliases: const ['amount', 'entry.amount'],
+                    ),
+                    if (kind == 'transfer') ...[
+                      selectField(
+                        id: 'entry-destination',
+                        label: context.l10n.destinationAccount,
+                        value: destination,
+                        choices: accountChoices(
+                          destination,
+                        ).where((v) => v.value != account).toList(),
+                        onChanged: (v) => setState(() => destination = v),
+                        validator: (v) => v == account
+                            ? context.l10n.sameAccountError
+                            : requiredChoice(v, accountChoices(destination)),
+                        aliases: const ['to_account_id', 'entry.to_account_id'],
+                      ),
+                      field(
+                        context.l10n.destinationPrincipal,
+                        toAmount,
+                        money: true,
+                        currency: destinationCurrency,
+                        validator: (v) {
+                          final error = amountValidator(v, destinationCurrency);
+                          if (error != null) return error;
+                          if (currency == destinationCurrency &&
+                              amountValidator(amount.text, currency) == null &&
+                              LedgerMoney.parse(v!, c.scale(currency)).units !=
+                                  LedgerMoney.parse(
+                                    amount.text,
+                                    c.scale(currency),
+                                  ).units) {
+                            return context.l10n.formSameCurrencyPrincipal;
                           }
+                          return null;
                         },
-                  child: Text(context.l10n.addCounterparty),
+                        keyName: 'entry-to-amount',
+                        aliases: const ['to_amount', 'entry.to_amount'],
+                      ),
+                    ],
+                    if (kind == 'expense' ||
+                        kind == 'income' ||
+                        kind == 'refund') ...[
+                      selectField(
+                        id: 'entry-category',
+                        label: context.l10n.categoryLabel,
+                        value: category,
+                        choices: categoryOptions,
+                        readOnly: kind == 'refund',
+                        helperText: kind == 'refund'
+                            ? context.l10n.formRefundCategoryFixed
+                            : null,
+                        onChanged: (v) => setState(() => category = v),
+                        validator: (v) => requiredChoice(v, categoryOptions),
+                        aliases: const ['category_id', 'entry.category_id'],
+                      ),
+                      if (kind != 'refund')
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: TextButton(
+                            key: const ValueKey('entry-add-category'),
+                            onPressed: frozen ? null : createCategory,
+                            child: Text(context.l10n.addCategory),
+                          ),
+                        ),
+                    ],
+                    field(
+                      context.l10n.dateLabel,
+                      date,
+                      date: true,
+                      validator: dateText,
+                      keyName: 'entry-date',
+                      aliases: const ['occurred_on', 'entry.occurred_on'],
+                    ),
+                  ],
                 ),
-                accountingGap,
-                field(
-                  context.l10n.dateLabel,
-                  date,
-                  validator: dateText,
-                  keyName: 'entry-date',
-                ),
-                field(
-                  context.l10n.noteLabel,
-                  note,
-                  multiline: true,
-                  keyName: 'entry-note',
+                LedgerFormSection(
+                  title: context.l10n.formAdditionalDetails,
+                  children: [
+                    selectField(
+                      id: 'entry-counterparty',
+                      label: context.l10n.counterpartyLabel,
+                      value: counterparty,
+                      helperText: context.l10n.formOptional,
+                      choices: [
+                        Choice('', context.l10n.noneOption),
+                        for (final v in c.counterparties.where(
+                          (v) => !v.archived || v.id == counterparty,
+                        ))
+                          Choice(v.id, v.name),
+                      ],
+                      onChanged: (v) => setState(() => counterparty = v),
+                      aliases: const [
+                        'counterparty_id',
+                        'entry.counterparty_id',
+                      ],
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: TextButton(
+                        key: const ValueKey('entry-add-counterparty'),
+                        onPressed: frozen ? null : createCounterparty,
+                        child: Text(context.l10n.addCounterparty),
+                      ),
+                    ),
+                    field(
+                      context.l10n.noteLabel,
+                      note,
+                      multiline: true,
+                      keyName: 'entry-note',
+                      helperText: context.l10n.formOptional,
+                      aliases: const ['note', 'entry.note'],
+                    ),
+                  ],
                 ),
                 if (existing == null &&
                     widget.feeForId == null &&
-                    kind != 'opening') ...[
-                  SwitchListTile(
-                    key: const ValueKey('add-fee-toggle'),
-                    title: Text(context.l10n.addFee),
-                    value: newFee?.selected ?? false,
-                    onChanged: frozen
-                        ? null
-                        : (v) => setState(() {
-                            newFee ??= _FeeDraft(
-                              account: account,
-                              category:
-                                  c.categories
-                                      .where(
-                                        (v) =>
-                                            !v.archived &&
-                                            v.kind == 'expense' &&
-                                            v.systemCode == 'fees',
-                                      )
-                                      .firstOrNull
-                                      ?.id ??
-                                  '',
-                              date: date.text,
-                            );
-                            newFee!.selected = v;
-                          }),
-                  ),
-                  if (newFee?.selected == true) ...feeFields(newFee!),
-                ],
-                if (relatedFees.isNotEmpty)
-                  LedgerSection(
-                    title: context.l10n.includeFeesTitle,
+                    kind != 'opening')
+                  LedgerFormSection(
+                    title: context.l10n.feeLabel,
                     children: [
-                      Text(context.l10n.includeFeesHint),
-                      for (final f in relatedFees) ...[
-                        CheckboxListTile(
-                          value: f.selected,
-                          title: Text(
-                            '${context.l10n.feeLabel} · '
-                            '${ledger.account(f.account)?.name ?? ''} · '
-                            '${f.transaction!.amount}',
-                          ),
-                          onChanged: frozen
-                              ? null
-                              : (v) => setState(() => f.selected = v ?? false),
-                        ),
-                        if (f.selected) ...feeFields(f),
+                      SwitchListTile(
+                        key: const ValueKey('add-fee-toggle'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(context.l10n.addFee),
+                        subtitle: Text(context.l10n.feeSeparateHint),
+                        value: newFee?.selected ?? false,
+                        onChanged: frozen
+                            ? null
+                            : (v) => setState(() {
+                                newFee ??= _FeeDraft(
+                                  account: account,
+                                  category:
+                                      c.categories
+                                          .where(
+                                            (v) =>
+                                                !v.archived &&
+                                                v.kind == 'expense' &&
+                                                v.systemCode == 'fees',
+                                          )
+                                          .firstOrNull
+                                          ?.id ??
+                                      '',
+                                  date: date.text,
+                                );
+                                newFee!.selected = v;
+                              }),
+                      ),
+                      if (newFee?.selected == true) ...[
+                        accountingGap,
+                        ...feeFields(newFee!),
                       ],
                     ],
                   ),
-                accountingGap,
+                if (relatedFees.isNotEmpty) ...[
+                  LedgerNotice(
+                    title: context.l10n.includeFeesTitle,
+                    body: context.l10n.includeFeesHint,
+                  ),
+                  accountingGap,
+                  for (final f in relatedFees)
+                    LedgerFormSection(
+                      children: [
+                        CheckboxListTile(
+                          key: ValueKey('include-fee-${f.transaction!.id}'),
+                          contentPadding: EdgeInsets.zero,
+                          value: f.selected,
+                          title: Text(context.l10n.feeLabel),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${accountName(f.transaction!.accountId)}'
+                                ' · ${f.transaction!.date}',
+                              ),
+                              LedgerMoneyText(
+                                formattedEntryAmount(f.transaction!.data),
+                              ),
+                            ],
+                          ),
+                          onChanged: frozen || !f.available
+                              ? null
+                              : (v) => setState(() => f.selected = v ?? false),
+                        ),
+                        if (!f.available) ...[
+                          Text(context.l10n.formUnavailableFees),
+                          LedgerReadOnlyField(
+                            label: context.l10n.formDraftFee,
+                            value:
+                                '${f.amount.text} '
+                                '${c.account(f.account)?.currency ?? ''}'
+                                ' · ${f.date.text}',
+                          ),
+                          if (f.note.text.isNotEmpty) Text(f.note.text),
+                        ],
+                        if (f.selected) ...[accountingGap, ...feeFields(f)],
+                      ],
+                    ),
+                ],
+                ...feedback(
+                  showSaving: false,
+                  showError: error?.status != 409 || !correctionConflict,
+                ),
+                if (correctionConflict && !sourceUnavailable) ...[
+                  LedgerNotice(
+                    title: context.l10n.formConflictTitle,
+                    body: context.l10n.formConflictBody,
+                    action: LedgerAction(
+                      key: const ValueKey('entry-review-conflict'),
+                      label: context.l10n.formReviewLatest,
+                      secondary: true,
+                      busy: recovering,
+                      onPressed: resolveConflict,
+                    ),
+                  ),
+                  accountingGap,
+                ],
                 LedgerAction(
                   key: const ValueKey('save-entry'),
-                  label: request != null
-                      ? context.l10n.retryAction
-                      : context.l10n.saveEntry,
-                  onPressed: saving ? null : save,
+                  label: actionLabel(
+                    existing == null
+                        ? context.l10n.saveEntry
+                        : context.l10n.formSaveCorrection,
+                  ),
+                  busy: saving,
+                  onPressed:
+                      reviewing ||
+                          recovering ||
+                          correctionConflict ||
+                          sourceUnavailable
+                      ? null
+                      : save,
                 ),
-                if (error?.status == 409 && widget.editId != null)
-                  TextButton(
-                    onPressed: loadingEntry
-                        ? null
-                        : () {
-                            setState(() {
-                              loadingEntry = true;
-                              error = null;
-                            });
-                            unawaited(loadExisting());
-                          },
-                    child: Text(context.l10n.reloadDetail),
+              ] else if (!loadingEntry) ...[
+                ...feedback(showSaving: false),
+                if (initialized && needsSource && !loadedExisting)
+                  LedgerAction(
+                    label: context.l10n.retryAction,
+                    onPressed: () {
+                      setState(() {
+                        loadingEntry = true;
+                        error = null;
+                      });
+                      unawaited(loadExisting());
+                    },
                   ),
               ],
-              if (initialized &&
-                  !loadingEntry &&
-                  (widget.editId != null || widget.originalId != null) &&
-                  !loadedExisting)
-                LedgerAction(
-                  label: context.l10n.retryAction,
-                  onPressed: () {
-                    setState(() => loadingEntry = true);
-                    unawaited(loadExisting());
-                  },
-                ),
             ],
           ),
         );

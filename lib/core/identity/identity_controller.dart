@@ -34,6 +34,7 @@ class IdentityController extends ChangeNotifier {
   IdentityPhase phase = IdentityPhase.authentication;
   PersonalContext? context;
   ApiFailure? error;
+  Map<String, String>? pendingPreferences;
   bool saving = false;
   bool signingOut = false;
   String? _session;
@@ -51,6 +52,7 @@ class IdentityController extends ChangeNotifier {
       phase = IdentityPhase.authentication;
       context = null;
       error = null;
+      pendingPreferences = null;
       saving = false;
       if (hadSession) {
         resetPreferences();
@@ -80,6 +82,7 @@ class IdentityController extends ChangeNotifier {
     final generation = ++_generation;
     context = null;
     error = null;
+    pendingPreferences = null;
     phase = IdentityPhase.loading;
     notifyListeners();
     try {
@@ -100,6 +103,7 @@ class IdentityController extends ChangeNotifier {
     context = value;
     phase = IdentityPhase.ready;
     error = null;
+    pendingPreferences = null;
     applyPreferences(value.preferences);
   }
 
@@ -125,6 +129,7 @@ class IdentityController extends ChangeNotifier {
   Future<void> savePreferences(Map<String, String> patch) async {
     if (saving || phase != IdentityPhase.ready || api == null) return;
     final generation = _generation;
+    pendingPreferences = Map<String, String>.unmodifiable(patch);
     saving = true;
     error = null;
     notifyListeners();
@@ -133,6 +138,7 @@ class IdentityController extends ChangeNotifier {
       if (_current(generation) && context != null) {
         context = context!.withPreferences(value);
         applyPreferences(value);
+        pendingPreferences = null;
       }
     } on ApiFailure catch (failure) {
       if (_current(generation)) handleFailure(failure);
@@ -144,6 +150,11 @@ class IdentityController extends ChangeNotifier {
     }
   }
 
+  Future<void> retryPreferences() async {
+    final patch = pendingPreferences;
+    if (patch != null) await savePreferences(patch);
+  }
+
   void handleFailure(ApiFailure failure) {
     error = failure;
     if (failure.deniesAccess ||
@@ -151,6 +162,7 @@ class IdentityController extends ChangeNotifier {
         failure.isType('api-major-version-unsupported')) {
       context = null;
       phase = IdentityPhase.error;
+      pendingPreferences = null;
     }
     notifyListeners();
   }
@@ -169,6 +181,7 @@ class IdentityController extends ChangeNotifier {
     context = null;
     saving = false;
     error = null;
+    pendingPreferences = null;
     signingOut = true;
     phase = IdentityPhase.authentication;
     resetPreferences();

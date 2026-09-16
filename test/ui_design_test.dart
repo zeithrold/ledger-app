@@ -12,6 +12,7 @@ import 'package:ledger_app/app/theme/ledger_theme.dart';
 import 'package:ledger_app/app/theme/theme_mode_controller.dart';
 import 'package:ledger_app/features/books/books_page.dart';
 import 'package:ledger_app/features/settings/settings_page.dart';
+import 'package:ledger_app/l10n/l10n.dart';
 import 'package:ledger_app/shared/ui/ledger_navigation.dart';
 import 'package:ledger_app/shared/ui/ledger_ui.dart';
 
@@ -257,16 +258,37 @@ void main() {
         return normalApi(request);
       },
     );
-    await tester.tap(find.byKey(const ValueKey('refresh-books')));
+    final book = find.byKey(const ValueKey('book-book-a'));
+    final position = tester.getTopLeft(book);
+    final refresh = find.byKey(const ValueKey('refresh-books'));
+    await tester.tap(refresh);
     await tester.pump();
-    expect(find.byKey(const ValueKey('book-book-a')), findsOneWidget);
-    expect(find.text('Refreshing…'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('refresh-books')));
+    expect(book, findsOneWidget);
+    expect(tester.getTopLeft(book), position);
+    final l10n = tester.element(find.byType(BooksPage)).l10n;
+    final busyAction = tester.widget<IconButton>(refresh);
+    expect(busyAction.tooltip, l10n.refreshingLabel);
+    expect(busyAction.onPressed, isNull);
+    expect(
+      find.descendant(
+        of: refresh,
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(refresh);
     expect(loads, 3);
     pending.complete(problem('service-unavailable', 503));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('book-book-a')), findsOneWidget);
     expect(find.byKey(const ValueKey('failure-message')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(LedgerGroup),
+        matching: find.byKey(const ValueKey('retry-books')),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('primary action has a labeled 48 pixel touch target', (

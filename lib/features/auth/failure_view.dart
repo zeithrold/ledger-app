@@ -8,10 +8,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 /// Localized errors without raw proxy or authentication bodies.
 class FailureView extends StatelessWidget {
   /// An application or transport failure.
-  const FailureView(this.failure, {super.key});
+  const FailureView(this.failure, {this.action, super.key});
 
   /// Sanitized metadata for this failure.
   final ApiFailure failure;
+
+  /// Recovery belongs to the same region as the failure it resolves.
+  final Widget? action;
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -94,6 +97,10 @@ class FailureView extends StatelessWidget {
                       SelectableText('${l10n.correlationLabel}: $reference'),
                     ],
                   ),
+                if (action != null) ...[
+                  const SizedBox(height: LedgerTokens.lg),
+                  action!,
+                ],
               ],
             ),
           ),

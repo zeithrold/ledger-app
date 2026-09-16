@@ -17,7 +17,9 @@ Entry
   Returning identity -> Home / Books
 
 Authenticated shell
-  Home -> Book detail
+  Home -> Month summary / Recent transactions / Transaction entry
+  Transactions -> Filters / Detail / Corrections / Relations
+  Accounts -> Account detail / Maintenance
   Settings -> Account / Preferences / App information / Sign out
 
 Shared surfaces
@@ -26,8 +28,8 @@ Shared surfaces
   Inline feedback, loading, empty, permission, and session-expiry states
 ```
 
-Preserve the two existing destinations and their localized names during the
-foundation work. Book detail gets a contextual title and a leading back control.
+Preserve Home, Transactions, Accounts and Settings and their localized names.
+Book detail gets a contextual title and a leading back control.
 Opening detail uses a push and must preserve a return path. Indexed tab branches
 retain detail stacks and the book-list scroll position. A direct link must still have a safe
 Home fallback. Test system back, iOS back swipe, and Android predictive back.
@@ -90,7 +92,7 @@ Do not make brand blue mean income. Do not use missing data as a zero balance.
 
 Inter 400/500/600/700 ships in local font assets with its OFL license.
 Use explicit role styles; use platform CJK fallback and test both locales. Do not force Chinese
-tracking to match Latin. Do not use monospaced text for entire screens. Future
+tracking to match Latin. Do not use monospaced text for entire screens. Financial
 amounts use `FontFeature.tabularFigures()`, explicit currency, locale-aware
 formatting, and a precise amount representation agreed with the API. Long names
 wrap; only redundant metadata may truncate with an accessible full value.
@@ -154,6 +156,10 @@ The bar grows with label height and owns its bottom safe area. NavigationRail
 begins at 600 pixels; pages remain bounded at 640 and forms at 520.
 
 ## 3. Component contracts
+
+Use [UI patterns](ui-patterns.md) for the maintained content, field, financial and
+recovery contracts. `LedgerGroup` is for complete rows. `LedgerSurface` and
+`LedgerFormSection` own content padding and never divide fields or spacers.
 
 | Pattern | Flutter direction | Contract |
 | --- | --- | --- |
@@ -273,7 +279,8 @@ where needed while keeping information visible.
    and text scaling.
 2. **Interaction safety:** searchable selection under keyboard constraints, radio
    choice semantics, root overlay ownership, detail back navigation.
-3. **Current pages:** settings, books/detail, welcome/setup, then shared states.
+3. **Current pages:** Home, account/transaction lists, all form branches,
+   details/relations/history/confirmations, settings, books and entry states.
    Preserve endpoint, identity, save timing and localization contracts.
 4. **Validation:** render and inspect financial entry, fee/refund relations,
    corrections, history, pagination and conflict states against the dated API.

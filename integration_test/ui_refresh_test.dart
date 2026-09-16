@@ -95,6 +95,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.getTopLeft(search).dy, closeTo(pinnedTop, .01));
         expect(search.hitTestable(), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('choice-close')).hitTestable(),
+          findsOneWidget,
+        );
         await capture(tester, '$prefix-timezones-scrolled');
         await tester.enterText(
           find.byKey(const ValueKey('choice-search')),

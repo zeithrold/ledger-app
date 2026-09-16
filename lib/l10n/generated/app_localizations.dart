@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// Shared Ledger design system: refreshingLabel
   ///
   /// In en, this message translates to:
-  /// **'Refreshing…'**
+  /// **'Refreshing'**
   String get refreshingLabel;
 
   /// Shared Ledger design system: savingPreferencesLabel
@@ -1321,6 +1321,600 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Posting'**
   String get postingLabel;
+
+  /// Shared page refinement: detailStatusPosted.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded'**
+  String get detailStatusPosted;
+
+  /// Shared page refinement: detailRelatedUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Related transaction unavailable'**
+  String get detailRelatedUnavailable;
+
+  /// Shared page refinement: detailRelatedRetryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction is available. Retry loading this related record.'**
+  String get detailRelatedRetryBody;
+
+  /// Shared page refinement: detailFeesIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Load all linked fees before reviewing a reversal.'**
+  String get detailFeesIncomplete;
+
+  /// Shared page refinement: detailNoRelations.
+  ///
+  /// In en, this message translates to:
+  /// **'No related transactions yet.'**
+  String get detailNoRelations;
+
+  /// Shared page refinement: detailReversalChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes after reversal'**
+  String get detailReversalChanges;
+
+  /// Shared page refinement: detailRecordedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded at'**
+  String get detailRecordedAt;
+
+  /// Shared page refinement: detailLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Link on a transaction to add this relationship. Linking does not change balances.'**
+  String get detailLinkHint;
+
+  /// Shared page refinement: detailLinkFeeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a recorded expense to link as a fee. Its existing amount stays unchanged.'**
+  String get detailLinkFeeHint;
+
+  /// Shared page refinement: detailLinkAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get detailLinkAction;
+
+  /// Shared page refinement: detailLinkSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Linking from'**
+  String get detailLinkSource;
+
+  /// Shared page refinement: detailLinkEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No eligible transactions are available. Return to the transaction to continue.'**
+  String get detailLinkEmpty;
+
+  /// Shared page refinement: detailSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get detailSaving;
+
+  /// Shared page refinement: preferencesSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Preference not saved'**
+  String get preferencesSaveFailed;
+
+  /// Shared page refinement: preferencesRetrySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saving'**
+  String get preferencesRetrySave;
+
+  /// Shared page refinement: preferencesPreviousKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Your previous setting is still active. Retry to apply this selection.'**
+  String get preferencesPreviousKept;
+
+  /// Shared page refinement: preferencesPendingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected value'**
+  String get preferencesPendingValue;
+
+  /// Shared page refinement: signingOutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out…'**
+  String get signingOutLabel;
+
+  /// Shared page refinement: setupReviewNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before continuing'**
+  String get setupReviewNotice;
+
+  /// Shared page refinement: setupFallbackNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Review device defaults'**
+  String get setupFallbackNotice;
+
+  /// Shared page refinement: backAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backAction;
+
+  /// Shared page refinement: noActiveAccountsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active accounts'**
+  String get noActiveAccountsTitle;
+
+  /// Shared page refinement: noActiveAccountsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'All accounts in this book are archived. Review your accounts or add an account to record a transaction.'**
+  String get noActiveAccountsBody;
+
+  /// Shared page refinement: viewAccountsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'View accounts'**
+  String get viewAccountsAction;
+
+  /// Shared page refinement: archivedAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is archived. Its balance and transaction history remain available. Edit the account to restore it.'**
+  String get archivedAccountBody;
+
+  /// Shared page refinement: accountTransactionsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions for this account will appear here.'**
+  String get accountTransactionsEmptyBody;
+
+  /// Shared page refinement: accountUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account unavailable'**
+  String get accountUnavailableTitle;
+
+  /// Shared page refinement: accountUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not available in the selected book. Return to your accounts to continue.'**
+  String get accountUnavailableBody;
+
+  /// Shared page refinement: noMatchingTransactionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match these filters. Adjust or clear the filters to see more results.'**
+  String get noMatchingTransactionsBody;
+
+  /// Shared page refinement: dateRangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get dateRangeTitle;
+
+  /// Shared page refinement: transactionConditionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction filters'**
+  String get transactionConditionsTitle;
+
+  /// Shared page refinement: displayOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display options'**
+  String get displayOptionsTitle;
+
+  /// Shared page refinement: filterDateFormatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'YYYY-MM-DD. Leave blank for any date.'**
+  String get filterDateFormatHint;
+
+  /// Shared page refinement: invalidDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date must be on or after the start date.'**
+  String get invalidDateRange;
+
+  /// Shared page refinement: appliedFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied filters'**
+  String get appliedFiltersTitle;
+
+  /// Shared page refinement: loadMoreErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More transactions could not be loaded'**
+  String get loadMoreErrorTitle;
+
+  /// Shared page refinement: loadMoreErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current results are still available. Try loading the next page again.'**
+  String get loadMoreErrorBody;
+
+  /// Shared page refinement: retryLoadMoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry loading'**
+  String get retryLoadMoreAction;
+
+  /// Shared page refinement: filterApplyErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters could not be applied'**
+  String get filterApplyErrorTitle;
+
+  /// Shared page refinement: filterApplyErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your filter choices and previous results are still available. Try applying the filters again.'**
+  String get filterApplyErrorBody;
+
+  /// Shared page refinement: selectFieldPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an option'**
+  String get selectFieldPlaceholder;
+
+  /// Shared page refinement: selectionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection unavailable'**
+  String get selectionUnavailable;
+
+  /// Page refinement: formReviewField.
+  ///
+  /// In en, this message translates to:
+  /// **'Review this value and try again.'**
+  String get formReviewField;
+
+  /// Page refinement: formReviewFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your entries'**
+  String get formReviewFields;
+
+  /// Page refinement: formSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get formSaving;
+
+  /// Page refinement: formResolveSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Check save result'**
+  String get formResolveSave;
+
+  /// Page refinement: formPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The save result is not confirmed. Your entries are temporarily locked. Check the result using the original request.'**
+  String get formPendingBody;
+
+  /// Page refinement: formChooseCurrencyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account to set the currency first.'**
+  String get formChooseCurrencyAccount;
+
+  /// Page refinement: formPositiveAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than zero.'**
+  String get formPositiveAmount;
+
+  /// Page refinement: formRefundLimitError.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount exceeds the refundable amount shown above.'**
+  String get formRefundLimitError;
+
+  /// Page refinement: formChooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get formChooseDate;
+
+  /// Page refinement: formDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use YYYY-MM-DD, or choose a date.'**
+  String get formDateHint;
+
+  /// Page refinement: formAmountExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Example:'**
+  String get formAmountExample;
+
+  /// Page refinement: formSignedAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a positive or negative amount.'**
+  String get formSignedAmountHint;
+
+  /// Page refinement: formAccountCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Account currency'**
+  String get formAccountCurrency;
+
+  /// Page refinement: formAccountCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The account currency cannot change after creation.'**
+  String get formAccountCurrencyHint;
+
+  /// Page refinement: formOpeningHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Leave blank or enter zero if there is no opening balance. Use a negative amount for a negative opening balance.'**
+  String get formOpeningHint;
+
+  /// Page refinement: formCategoryTypeFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'This category uses the transaction type of your entry.'**
+  String get formCategoryTypeFixed;
+
+  /// Page refinement: formOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get formOptional;
+
+  /// Page refinement: formActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get formActive;
+
+  /// Page refinement: formConflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the latest record'**
+  String get formConflictTitle;
+
+  /// Page refinement: formConflictBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entries are kept. Load the latest record and review the differences before saving again.'**
+  String get formConflictBody;
+
+  /// Page refinement: formConflictReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the latest record does not replace your entries. Choose which values to keep, then review and save again.'**
+  String get formConflictReview;
+
+  /// Page refinement: formLatestValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest saved values'**
+  String get formLatestValues;
+
+  /// Page refinement: formYourDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entries'**
+  String get formYourDraft;
+
+  /// Page refinement: formUseLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Use latest values'**
+  String get formUseLatest;
+
+  /// Page refinement: formKeepDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my entries'**
+  String get formKeepDraft;
+
+  /// Page refinement: formReviewLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Load and compare'**
+  String get formReviewLatest;
+
+  /// Page refinement: formSelectionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This choice is no longer available. Choose another value.'**
+  String get formSelectionUnavailable;
+
+  /// Page refinement: formCategoryMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The new category does not match this transaction type. Choose a matching category.'**
+  String get formCategoryMismatch;
+
+  /// Page refinement: formLatestFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest saved fee'**
+  String get formLatestFee;
+
+  /// Page refinement: formDraftFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fee entries'**
+  String get formDraftFee;
+
+  /// Page refinement: formUnavailableFees.
+  ///
+  /// In en, this message translates to:
+  /// **'Some fees can no longer be corrected with this transaction. Their entries are kept for reference and will not be submitted.'**
+  String get formUnavailableFees;
+
+  /// Page refinement: formPreviousEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous transaction'**
+  String get formPreviousEntry;
+
+  /// Page refinement: formUpdatedEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated transaction'**
+  String get formUpdatedEntry;
+
+  /// Page refinement: formPreviousFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous fee'**
+  String get formPreviousFee;
+
+  /// Page refinement: formUpdatedFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated fee'**
+  String get formUpdatedFee;
+
+  /// Page refinement: formCorrectTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct transaction'**
+  String get formCorrectTransaction;
+
+  /// Page refinement: formSaveCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Review correction'**
+  String get formSaveCorrection;
+
+  /// Page refinement: formOriginalExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Original expense'**
+  String get formOriginalExpense;
+
+  /// Page refinement: formLinkedTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked transaction'**
+  String get formLinkedTransaction;
+
+  /// Page refinement: formCorrectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrections keep the transaction history. Only fees you select will change.'**
+  String get formCorrectionHint;
+
+  /// Page refinement: formNoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'An account is needed'**
+  String get formNoAccounts;
+
+  /// Page refinement: formCreateAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account before recording this transaction.'**
+  String get formCreateAccountHint;
+
+  /// Page refinement: formTransactionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction details'**
+  String get formTransactionDetails;
+
+  /// Page refinement: formAdditionalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional details'**
+  String get formAdditionalDetails;
+
+  /// Page refinement: formOpeningAccountFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'An opening balance stays with its original account.'**
+  String get formOpeningAccountFixed;
+
+  /// Page refinement: formRefundCategoryFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds keep the original expense category.'**
+  String get formRefundCategoryFixed;
+
+  /// Page refinement: formSameCurrencyPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'For the same currency, both principal amounts must match. Record fees separately.'**
+  String get formSameCurrencyPrincipal;
+
+  /// Page refinement: formRecordUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This transaction was deleted and cannot be changed. Your entries are kept here for reference. Return to the transaction list to continue.'**
+  String get formRecordUnavailable;
+
+  /// Transaction detail action menu: More actions
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get detailMoreActions;
+
+  /// Transaction detail action menu: New records
+  ///
+  /// In en, this message translates to:
+  /// **'New records'**
+  String get detailNewRecords;
+
+  /// Transaction detail action menu: Link existing records
+  ///
+  /// In en, this message translates to:
+  /// **'Link existing records'**
+  String get detailLinkExisting;
+
+  /// Transaction detail action menu: Add fee
+  ///
+  /// In en, this message translates to:
+  /// **'Add fee'**
+  String get detailAddFee;
+
+  /// Transaction detail action menu: Record a new fee linked to this transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Record a new fee linked to this transaction'**
+  String get detailAddFeeHint;
+
+  /// Transaction detail action menu: Link transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Link transaction'**
+  String get detailLinkTransaction;
+
+  /// Transaction detail action menu: Link fee
+  ///
+  /// In en, this message translates to:
+  /// **'Link fee'**
+  String get detailLinkFee;
+
+  /// Explains linking an existing fee in the transaction action menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a fee from existing transactions'**
+  String get detailMenuLinkFeeHint;
+
+  /// Transaction detail action menu: Close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get detailCloseActions;
 }
 
 class _AppLocalizationsDelegate

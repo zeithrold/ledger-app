@@ -12,6 +12,33 @@ import 'package:ledger_app/l10n/l10n.dart';
 import 'package:ledger_app/shared/ui/ledger_ui.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+/// The common root-owned selection surface for preference and form triggers.
+Future<String?> showLedgerChoice(
+  BuildContext context, {
+  required String label,
+  required String value,
+  required List<Choice> choices,
+  bool searchable = true,
+  String? suggested,
+  String optionKeyPrefix = 'option',
+}) => showModalBottomSheet<String>(
+  context: context,
+  useRootNavigator: true,
+  isScrollControlled: true,
+  useSafeArea: true,
+  sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
+  builder: (_) => _ChoiceSheet(
+    label: label,
+    value: value,
+    choices: choices,
+    searchable: searchable,
+    suggested: suggested,
+    optionKeyPrefix: optionKeyPrefix,
+  ),
+);
+
 class ChoiceSelect extends StatelessWidget {
   const ChoiceSelect({
     required this.label,
@@ -38,30 +65,185 @@ class ChoiceSelect extends StatelessWidget {
         .firstOrNull;
     return LedgerRow(
       title: label,
-      value: selected?.displayLabel ?? selected?.label ?? value,
+      value:
+          selected?.displayLabel ??
+          selected?.label ??
+          context.l10n.selectionUnavailable,
       enabled: onChanged != null,
       onTap: () async {
         final callback = onChanged;
         if (callback == null) return;
-        final result = await showModalBottomSheet<String>(
-          context: context,
-          useRootNavigator: true,
-          isScrollControlled: true,
-          useSafeArea: true,
-          sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
-              ? AnimationStyle.noAnimation
-              : null,
-          builder: (_) => _ChoiceSheet(
-            label: label,
-            value: value,
-            choices: choices,
-            searchable: searchable,
-            suggested: suggested,
-            optionKeyPrefix: optionKeyPrefix,
-          ),
+        final result = await showLedgerChoice(
+          context,
+          label: label,
+          value: value,
+          choices: choices,
+          searchable: searchable,
+          suggested: suggested,
+          optionKeyPrefix: optionKeyPrefix,
         );
         if (result != null && context.mounted) callback(result);
       },
+    );
+  }
+}
+
+/// A catalog selection uses the same form and label contract as text fields.
+class LedgerSelectField extends StatefulWidget {
+  const LedgerSelectField({
+    required this.label,
+    required this.value,
+    required this.choices,
+    required this.onChanged,
+    this.searchable = true,
+    this.suggested,
+    this.optionKeyPrefix = 'option',
+    this.validator,
+    this.helperText,
+    this.readOnly = false,
+    this.focusNode,
+    this.fieldKey,
+    super.key,
+  });
+  final String label;
+  final String value;
+  final List<Choice> choices;
+  final ValueChanged<String>? onChanged;
+  final bool searchable;
+  final String? suggested;
+  final String optionKeyPrefix;
+  final FormFieldValidator<String>? validator;
+  final String? helperText;
+  final bool readOnly;
+  final FocusNode? focusNode;
+  final GlobalKey<FormFieldState<String>>? fieldKey;
+
+  @override
+  State<LedgerSelectField> createState() => _LedgerSelectFieldState();
+}
+
+class _LedgerSelectFieldState extends State<LedgerSelectField> {
+  final _fieldKey = GlobalKey<FormFieldState<String>>();
+  late final FocusNode _ownedFocus = FocusNode();
+  FocusNode get _focus => widget.focusNode ?? _ownedFocus;
+
+  @override
+  void didUpdateWidget(LedgerSelectField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      // External draft replacement can happen while the parent Form builds.
+      // User selections already updated the field before notifying the parent.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final field = (widget.fieldKey ?? _fieldKey).currentState;
+        if (field != null && field.value != widget.value) {
+          field.didChange(widget.value);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ownedFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = widget.choices
+        .where((v) => v.value == widget.value)
+        .firstOrNull;
+    final value =
+        selected?.displayLabel ??
+        selected?.label ??
+        (widget.value.isEmpty
+            ? context.l10n.selectFieldPlaceholder
+            : context.l10n.selectionUnavailable);
+    if (widget.readOnly) {
+      return LedgerReadOnlyField(
+        label: widget.label,
+        value: value,
+        helperText: widget.helperText,
+      );
+    }
+    final enabled = widget.onChanged != null;
+    return FormField<String>(
+      key: widget.fieldKey ?? _fieldKey,
+      initialValue: widget.value,
+      enabled: enabled,
+      validator: widget.validator,
+      builder: (field) => LedgerFieldFrame(
+        label: widget.label,
+        helperText: widget.helperText,
+        errorText: field.errorText,
+        child: Semantics(
+          label: widget.label,
+          button: true,
+          enabled: enabled,
+          child: Material(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: LedgerTokens.smallRadius,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              focusNode: _focus,
+              onFocusChange: (_) => setState(() {}),
+              onTap: !enabled
+                  ? null
+                  : () async {
+                      final result = await showLedgerChoice(
+                        context,
+                        label: widget.label,
+                        value: widget.value,
+                        choices: widget.choices,
+                        searchable: widget.searchable,
+                        suggested: widget.suggested,
+                        optionKeyPrefix: widget.optionKeyPrefix,
+                      );
+                      if (!mounted || result == null) return;
+                      field.didChange(result);
+                      widget.onChanged?.call(result);
+                    },
+              child: InputDecorator(
+                isFocused: _focus.hasFocus,
+                decoration: InputDecoration(
+                  enabled: enabled,
+                  enabledBorder: field.hasError
+                      ? Theme.of(context).inputDecorationTheme.errorBorder
+                      : null,
+                  focusedBorder: field.hasError
+                      ? Theme.of(
+                          context,
+                        ).inputDecorationTheme.focusedErrorBorder
+                      : null,
+                  constraints: const BoxConstraints(
+                    minHeight: LedgerTokens.rowHeight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: enabled
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: LedgerTokens.md),
+                    const Icon(
+                      LucideIcons.chevronDown,
+                      size: LedgerTokens.smallIcon,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -135,11 +317,13 @@ class _ChoiceSheetState extends ConsumerState<_ChoiceSheet> {
                     ),
                   ),
                 ),
-                IconButton(
-                  tooltip: context.l10n.cancelAction,
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(LucideIcons.x),
-                ),
+                if (!widget.searchable)
+                  IconButton(
+                    key: const ValueKey('choice-close'),
+                    tooltip: context.l10n.cancelAction,
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(LucideIcons.x),
+                  ),
               ],
             ),
           );
@@ -219,24 +403,49 @@ class _ChoiceSheetState extends ConsumerState<_ChoiceSheet> {
                                         padding: const EdgeInsets.fromLTRB(
                                           LedgerTokens.gutter,
                                           LedgerTokens.lg,
-                                          LedgerTokens.gutter,
+                                          LedgerTokens.sm,
                                           LedgerTokens.lg,
                                         ),
-                                        child: TextField(
-                                          key: const ValueKey('choice-search'),
-                                          textInputAction:
-                                              TextInputAction.search,
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                context.l10n.searchOptions,
-                                            prefixIcon: const Icon(
-                                              LucideIcons.search,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                key: const ValueKey(
+                                                  'choice-search',
+                                                ),
+                                                textInputAction:
+                                                    TextInputAction.search,
+                                                decoration: InputDecoration(
+                                                  labelText: context
+                                                      .l10n
+                                                      .searchOptions,
+                                                  prefixIcon: const Icon(
+                                                    LucideIcons.search,
+                                                  ),
+                                                ),
+                                                onChanged: (value) => setState(
+                                                  () => query = value,
+                                                ),
+                                                onSubmitted: (_) =>
+                                                    FocusScope.of(
+                                                      context,
+                                                    ).unfocus(),
+                                              ),
                                             ),
-                                          ),
-                                          onChanged: (value) =>
-                                              setState(() => query = value),
-                                          onSubmitted: (_) =>
-                                              FocusScope.of(context).unfocus(),
+                                            const SizedBox(
+                                              width: LedgerTokens.sm,
+                                            ),
+                                            IconButton(
+                                              key: const ValueKey(
+                                                'choice-close',
+                                              ),
+                                              tooltip:
+                                                  context.l10n.cancelAction,
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              icon: const Icon(LucideIcons.x),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

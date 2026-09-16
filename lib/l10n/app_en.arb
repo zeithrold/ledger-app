@@ -324,7 +324,7 @@
   "@supportDetailsLabel": {
     "description": "Shared Ledger design system: supportDetailsLabel"
   },
-  "refreshingLabel": "Refreshing…",
+  "refreshingLabel": "Refreshing",
   "@refreshingLabel": {
     "description": "Shared Ledger design system: refreshingLabel"
   },
@@ -815,5 +815,383 @@
   },
   "@postingLabel": {
     "description": "Label for an immutable posted journal."
-  }
+  },
+  "detailStatusPosted": "Recorded",
+  "@detailStatusPosted": {
+    "description": "Shared page refinement: detailStatusPosted."
+  },
+  "detailRelatedUnavailable": "Related transaction unavailable",
+  "@detailRelatedUnavailable": {
+    "description": "Shared page refinement: detailRelatedUnavailable."
+  },
+  "detailRelatedRetryBody": "Your transaction is available. Retry loading this related record.",
+  "@detailRelatedRetryBody": {
+    "description": "Shared page refinement: detailRelatedRetryBody."
+  },
+  "detailFeesIncomplete": "Load all linked fees before reviewing a reversal.",
+  "@detailFeesIncomplete": {
+    "description": "Shared page refinement: detailFeesIncomplete."
+  },
+  "detailNoRelations": "No related transactions yet.",
+  "@detailNoRelations": {
+    "description": "Shared page refinement: detailNoRelations."
+  },
+  "detailReversalChanges": "Changes after reversal",
+  "@detailReversalChanges": {
+    "description": "Shared page refinement: detailReversalChanges."
+  },
+  "detailRecordedAt": "Recorded at",
+  "@detailRecordedAt": {
+    "description": "Shared page refinement: detailRecordedAt."
+  },
+  "detailLinkHint": "Use Link on a transaction to add this relationship. Linking does not change balances.",
+  "@detailLinkHint": {
+    "description": "Shared page refinement: detailLinkHint."
+  },
+  "detailLinkFeeHint": "Choose a recorded expense to link as a fee. Its existing amount stays unchanged.",
+  "@detailLinkFeeHint": {
+    "description": "Shared page refinement: detailLinkFeeHint."
+  },
+  "detailLinkAction": "Link",
+  "@detailLinkAction": {
+    "description": "Shared page refinement: detailLinkAction."
+  },
+  "detailLinkSource": "Linking from",
+  "@detailLinkSource": {
+    "description": "Shared page refinement: detailLinkSource."
+  },
+  "detailLinkEmpty": "No eligible transactions are available. Return to the transaction to continue.",
+  "@detailLinkEmpty": {
+    "description": "Shared page refinement: detailLinkEmpty."
+  },
+  "detailSaving": "Saving…",
+  "@detailSaving": {
+    "description": "Shared page refinement: detailSaving."
+  },
+  "preferencesSaveFailed": "Preference not saved",
+  "@preferencesSaveFailed": {
+    "description": "Shared page refinement: preferencesSaveFailed."
+  },
+  "preferencesRetrySave": "Retry saving",
+  "@preferencesRetrySave": {
+    "description": "Shared page refinement: preferencesRetrySave."
+  },
+  "preferencesPreviousKept": "Your previous setting is still active. Retry to apply this selection.",
+  "@preferencesPreviousKept": {
+    "description": "Shared page refinement: preferencesPreviousKept."
+  },
+  "preferencesPendingValue": "Selected value",
+  "@preferencesPendingValue": {
+    "description": "Shared page refinement: preferencesPendingValue."
+  },
+  "signingOutLabel": "Signing out…",
+  "@signingOutLabel": {
+    "description": "Shared page refinement: signingOutLabel."
+  },
+  "setupReviewNotice": "Review before continuing",
+  "@setupReviewNotice": {
+    "description": "Shared page refinement: setupReviewNotice."
+  },
+  "setupFallbackNotice": "Review device defaults",
+  "@setupFallbackNotice": {
+    "description": "Shared page refinement: setupFallbackNotice."
+  },
+  "backAction": "Back",
+  "@backAction": {
+    "description": "Shared page refinement: backAction."
+  },
+  "noActiveAccountsTitle": "No active accounts",
+  "@noActiveAccountsTitle": {
+    "description": "Shared page refinement: noActiveAccountsTitle."
+  },
+  "noActiveAccountsBody": "All accounts in this book are archived. Review your accounts or add an account to record a transaction.",
+  "@noActiveAccountsBody": {
+    "description": "Shared page refinement: noActiveAccountsBody."
+  },
+  "viewAccountsAction": "View accounts",
+  "@viewAccountsAction": {
+    "description": "Shared page refinement: viewAccountsAction."
+  },
+  "archivedAccountBody": "This account is archived. Its balance and transaction history remain available. Edit the account to restore it.",
+  "@archivedAccountBody": {
+    "description": "Shared page refinement: archivedAccountBody."
+  },
+  "accountTransactionsEmptyBody": "Transactions for this account will appear here.",
+  "@accountTransactionsEmptyBody": {
+    "description": "Shared page refinement: accountTransactionsEmptyBody."
+  },
+  "accountUnavailableTitle": "Account unavailable",
+  "@accountUnavailableTitle": {
+    "description": "Shared page refinement: accountUnavailableTitle."
+  },
+  "accountUnavailableBody": "This account is not available in the selected book. Return to your accounts to continue.",
+  "@accountUnavailableBody": {
+    "description": "Shared page refinement: accountUnavailableBody."
+  },
+  "noMatchingTransactionsBody": "No transactions match these filters. Adjust or clear the filters to see more results.",
+  "@noMatchingTransactionsBody": {
+    "description": "Shared page refinement: noMatchingTransactionsBody."
+  },
+  "dateRangeTitle": "Date range",
+  "@dateRangeTitle": {
+    "description": "Shared page refinement: dateRangeTitle."
+  },
+  "transactionConditionsTitle": "Transaction filters",
+  "@transactionConditionsTitle": {
+    "description": "Shared page refinement: transactionConditionsTitle."
+  },
+  "displayOptionsTitle": "Display options",
+  "@displayOptionsTitle": {
+    "description": "Shared page refinement: displayOptionsTitle."
+  },
+  "filterDateFormatHint": "YYYY-MM-DD. Leave blank for any date.",
+  "@filterDateFormatHint": {
+    "description": "Shared page refinement: filterDateFormatHint."
+  },
+  "invalidDateRange": "The end date must be on or after the start date.",
+  "@invalidDateRange": {
+    "description": "Shared page refinement: invalidDateRange."
+  },
+  "appliedFiltersTitle": "Applied filters",
+  "@appliedFiltersTitle": {
+    "description": "Shared page refinement: appliedFiltersTitle."
+  },
+  "loadMoreErrorTitle": "More transactions could not be loaded",
+  "@loadMoreErrorTitle": {
+    "description": "Shared page refinement: loadMoreErrorTitle."
+  },
+  "loadMoreErrorBody": "Your current results are still available. Try loading the next page again.",
+  "@loadMoreErrorBody": {
+    "description": "Shared page refinement: loadMoreErrorBody."
+  },
+  "retryLoadMoreAction": "Retry loading",
+  "@retryLoadMoreAction": {
+    "description": "Shared page refinement: retryLoadMoreAction."
+  },
+  "filterApplyErrorTitle": "Filters could not be applied",
+  "@filterApplyErrorTitle": {
+    "description": "Shared page refinement: filterApplyErrorTitle."
+  },
+  "filterApplyErrorBody": "Your filter choices and previous results are still available. Try applying the filters again.",
+  "@filterApplyErrorBody": {
+    "description": "Shared page refinement: filterApplyErrorBody."
+  },
+  "selectFieldPlaceholder": "Choose an option",
+  "@selectFieldPlaceholder": {
+    "description": "Shared page refinement: selectFieldPlaceholder."
+  },
+  "selectionUnavailable": "Selection unavailable",
+  "@selectionUnavailable": {
+    "description": "Shared page refinement: selectionUnavailable."
+  },
+  "formReviewField": "Review this value and try again.",
+  "@formReviewField": {
+    "description": "Page refinement: formReviewField."
+  },
+  "formReviewFields": "Review your entries",
+  "@formReviewFields": {
+    "description": "Page refinement: formReviewFields."
+  },
+  "formSaving": "Saving…",
+  "@formSaving": {
+    "description": "Page refinement: formSaving."
+  },
+  "formResolveSave": "Check save result",
+  "@formResolveSave": {
+    "description": "Page refinement: formResolveSave."
+  },
+  "formPendingBody": "The save result is not confirmed. Your entries are temporarily locked. Check the result using the original request.",
+  "@formPendingBody": {
+    "description": "Page refinement: formPendingBody."
+  },
+  "formChooseCurrencyAccount": "Choose an account to set the currency first.",
+  "@formChooseCurrencyAccount": {
+    "description": "Page refinement: formChooseCurrencyAccount."
+  },
+  "formPositiveAmount": "Enter an amount greater than zero.",
+  "@formPositiveAmount": {
+    "description": "Page refinement: formPositiveAmount."
+  },
+  "formRefundLimitError": "The amount exceeds the refundable amount shown above.",
+  "@formRefundLimitError": {
+    "description": "Page refinement: formRefundLimitError."
+  },
+  "formChooseDate": "Choose a date",
+  "@formChooseDate": {
+    "description": "Page refinement: formChooseDate."
+  },
+  "formDateHint": "Use YYYY-MM-DD, or choose a date.",
+  "@formDateHint": {
+    "description": "Page refinement: formDateHint."
+  },
+  "formAmountExample": "Example:",
+  "@formAmountExample": {
+    "description": "Page refinement: formAmountExample."
+  },
+  "formSignedAmountHint": "Use a positive or negative amount.",
+  "@formSignedAmountHint": {
+    "description": "Page refinement: formSignedAmountHint."
+  },
+  "formAccountCurrency": "Account currency",
+  "@formAccountCurrency": {
+    "description": "Page refinement: formAccountCurrency."
+  },
+  "formAccountCurrencyHint": "The account currency cannot change after creation.",
+  "@formAccountCurrencyHint": {
+    "description": "Page refinement: formAccountCurrencyHint."
+  },
+  "formOpeningHint": "Optional. Leave blank or enter zero if there is no opening balance. Use a negative amount for a negative opening balance.",
+  "@formOpeningHint": {
+    "description": "Page refinement: formOpeningHint."
+  },
+  "formCategoryTypeFixed": "This category uses the transaction type of your entry.",
+  "@formCategoryTypeFixed": {
+    "description": "Page refinement: formCategoryTypeFixed."
+  },
+  "formOptional": "Optional",
+  "@formOptional": {
+    "description": "Page refinement: formOptional."
+  },
+  "formActive": "Active",
+  "@formActive": {
+    "description": "Page refinement: formActive."
+  },
+  "formConflictTitle": "Review the latest record",
+  "@formConflictTitle": {
+    "description": "Page refinement: formConflictTitle."
+  },
+  "formConflictBody": "Your entries are kept. Load the latest record and review the differences before saving again.",
+  "@formConflictBody": {
+    "description": "Page refinement: formConflictBody."
+  },
+  "formConflictReview": "Loading the latest record does not replace your entries. Choose which values to keep, then review and save again.",
+  "@formConflictReview": {
+    "description": "Page refinement: formConflictReview."
+  },
+  "formLatestValues": "Latest saved values",
+  "@formLatestValues": {
+    "description": "Page refinement: formLatestValues."
+  },
+  "formYourDraft": "Your entries",
+  "@formYourDraft": {
+    "description": "Page refinement: formYourDraft."
+  },
+  "formUseLatest": "Use latest values",
+  "@formUseLatest": {
+    "description": "Page refinement: formUseLatest."
+  },
+  "formKeepDraft": "Keep my entries",
+  "@formKeepDraft": {
+    "description": "Page refinement: formKeepDraft."
+  },
+  "formReviewLatest": "Load and compare",
+  "@formReviewLatest": {
+    "description": "Page refinement: formReviewLatest."
+  },
+  "formSelectionUnavailable": "This choice is no longer available. Choose another value.",
+  "@formSelectionUnavailable": {
+    "description": "Page refinement: formSelectionUnavailable."
+  },
+  "formCategoryMismatch": "The new category does not match this transaction type. Choose a matching category.",
+  "@formCategoryMismatch": {
+    "description": "Page refinement: formCategoryMismatch."
+  },
+  "formLatestFee": "Latest saved fee",
+  "@formLatestFee": {
+    "description": "Page refinement: formLatestFee."
+  },
+  "formDraftFee": "Your fee entries",
+  "@formDraftFee": {
+    "description": "Page refinement: formDraftFee."
+  },
+  "formUnavailableFees": "Some fees can no longer be corrected with this transaction. Their entries are kept for reference and will not be submitted.",
+  "@formUnavailableFees": {
+    "description": "Page refinement: formUnavailableFees."
+  },
+  "formPreviousEntry": "Previous transaction",
+  "@formPreviousEntry": {
+    "description": "Page refinement: formPreviousEntry."
+  },
+  "formUpdatedEntry": "Updated transaction",
+  "@formUpdatedEntry": {
+    "description": "Page refinement: formUpdatedEntry."
+  },
+  "formPreviousFee": "Previous fee",
+  "@formPreviousFee": {
+    "description": "Page refinement: formPreviousFee."
+  },
+  "formUpdatedFee": "Updated fee",
+  "@formUpdatedFee": {
+    "description": "Page refinement: formUpdatedFee."
+  },
+  "formCorrectTransaction": "Correct transaction",
+  "@formCorrectTransaction": {
+    "description": "Page refinement: formCorrectTransaction."
+  },
+  "formSaveCorrection": "Review correction",
+  "@formSaveCorrection": {
+    "description": "Page refinement: formSaveCorrection."
+  },
+  "formOriginalExpense": "Original expense",
+  "@formOriginalExpense": {
+    "description": "Page refinement: formOriginalExpense."
+  },
+  "formLinkedTransaction": "Linked transaction",
+  "@formLinkedTransaction": {
+    "description": "Page refinement: formLinkedTransaction."
+  },
+  "formCorrectionHint": "Corrections keep the transaction history. Only fees you select will change.",
+  "@formCorrectionHint": {
+    "description": "Page refinement: formCorrectionHint."
+  },
+  "formNoAccounts": "An account is needed",
+  "@formNoAccounts": {
+    "description": "Page refinement: formNoAccounts."
+  },
+  "formCreateAccountHint": "Create an account before recording this transaction.",
+  "@formCreateAccountHint": {
+    "description": "Page refinement: formCreateAccountHint."
+  },
+  "formTransactionDetails": "Transaction details",
+  "@formTransactionDetails": {
+    "description": "Page refinement: formTransactionDetails."
+  },
+  "formAdditionalDetails": "Additional details",
+  "@formAdditionalDetails": {
+    "description": "Page refinement: formAdditionalDetails."
+  },
+  "formOpeningAccountFixed": "An opening balance stays with its original account.",
+  "@formOpeningAccountFixed": {
+    "description": "Page refinement: formOpeningAccountFixed."
+  },
+  "formRefundCategoryFixed": "Refunds keep the original expense category.",
+  "@formRefundCategoryFixed": {
+    "description": "Page refinement: formRefundCategoryFixed."
+  },
+  "formSameCurrencyPrincipal": "For the same currency, both principal amounts must match. Record fees separately.",
+  "@formSameCurrencyPrincipal": {
+    "description": "Page refinement: formSameCurrencyPrincipal."
+  },
+  "formRecordUnavailable": "This transaction was deleted and cannot be changed. Your entries are kept here for reference. Return to the transaction list to continue.",
+  "@formRecordUnavailable": {
+    "description": "Page refinement: formRecordUnavailable."
+  },
+  "detailMoreActions": "More actions",
+  "detailNewRecords": "New records",
+  "detailLinkExisting": "Link existing records",
+  "detailAddFee": "Add fee",
+  "detailAddFeeHint": "Record a new fee linked to this transaction",
+  "detailLinkTransaction": "Link transaction",
+  "detailLinkFee": "Link fee",
+  "detailMenuLinkFeeHint": "Select a fee from existing transactions",
+  "detailCloseActions": "Close",
+  "@detailMoreActions": {"description": "Transaction detail action menu: More actions"},
+  "@detailNewRecords": {"description": "Transaction detail action menu: New records"},
+  "@detailLinkExisting": {"description": "Transaction detail action menu: Link existing records"},
+  "@detailAddFee": {"description": "Transaction detail action menu: Add fee"},
+  "@detailAddFeeHint": {"description": "Transaction detail action menu: Record a new fee linked to this transaction"},
+  "@detailLinkTransaction": {"description": "Transaction detail action menu: Link transaction"},
+  "@detailLinkFee": {"description": "Transaction detail action menu: Link fee"},
+  "@detailCloseActions": {"description": "Transaction detail action menu: Close"},
+  "@detailMenuLinkFeeHint": {"description": "Explains linking an existing fee in the transaction action menu."}
 }

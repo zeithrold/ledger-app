@@ -5,6 +5,10 @@ import 'package:ledger_app/app/theme/ledger_tokens.dart';
 import 'package:ledger_app/l10n/l10n.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+export 'ledger_button_group.dart';
+export 'ledger_fields.dart';
+export 'ledger_patterns.dart';
+
 /// A bounded page with a header that scrolls when its content needs more room.
 class LedgerPage extends StatelessWidget {
   /// Creates this shared presentation component.
@@ -17,6 +21,8 @@ class LedgerPage extends StatelessWidget {
     this.maxWidth = LedgerTokens.contentWidth,
     this.itemBuilder,
     this.itemCount = 0,
+    this.eagerChildren = false,
+    this.contentBottomSpacing = LedgerTokens.xl,
     super.key,
   });
 
@@ -44,6 +50,12 @@ class LedgerPage extends StatelessWidget {
   /// Number of lazy data rows, including any pagination control.
   final int itemCount;
 
+  /// Keeps a form's fields registered while scrolling beyond the viewport.
+  final bool eagerChildren;
+
+  /// Space after introductory content; lazy-list pages can own this gap.
+  final double contentBottomSpacing;
+
   @override
   Widget build(BuildContext context) => ColoredBox(
     color: Theme.of(context).scaffoldBackgroundColor,
@@ -64,11 +76,21 @@ class LedgerPage extends StatelessWidget {
           textDirection: Directionality.of(context),
           textScaler: MediaQuery.textScalerOf(context),
         )..layout(maxWidth: titleWidth);
+        final stackedHeader =
+            (leading != null || actions.isNotEmpty) &&
+            measure.computeLineMetrics().length > 1;
+        if (stackedHeader) measure.layout(maxWidth: width - gutter * 2);
         final scrollHeader =
-            math.max(measure.height, LedgerTokens.target) +
+            (stackedHeader
+                    ? measure.height + LedgerTokens.target + LedgerTokens.sm
+                    : math.max(measure.height, LedgerTokens.target)) +
                 LedgerTokens.lg * 2 >
             constraints.maxHeight * .4;
         measure.dispose();
+        final heading = Semantics(
+          header: true,
+          child: Text(title, style: titleStyle),
+        );
         final header = Padding(
           padding: EdgeInsets.fromLTRB(
             gutter,
@@ -76,21 +98,31 @@ class LedgerPage extends StatelessWidget {
             gutter,
             LedgerTokens.lg,
           ),
-          child: Row(
-            children: [
-              if (leading != null) ...[
-                leading!,
-                const SizedBox(width: LedgerTokens.sm),
-              ],
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(title, style: titleStyle),
+          child: stackedHeader
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        ?leading,
+                        const Spacer(),
+                        ...actions,
+                      ],
+                    ),
+                    const SizedBox(height: LedgerTokens.sm),
+                    heading,
+                  ],
+                )
+              : Row(
+                  children: [
+                    if (leading != null) ...[
+                      leading!,
+                      const SizedBox(width: LedgerTokens.sm),
+                    ],
+                    Expanded(child: heading),
+                    ...actions,
+                  ],
                 ),
-              ),
-              ...actions,
-            ],
-          ),
         );
         return Center(
           child: ConstrainedBox(
@@ -109,9 +141,17 @@ class LedgerPage extends StatelessWidget {
                           gutter,
                           LedgerTokens.sm,
                           gutter,
-                          LedgerTokens.xl,
+                          contentBottomSpacing,
                         ),
-                        sliver: SliverList.list(children: children),
+                        sliver: eagerChildren
+                            ? SliverToBoxAdapter(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: children,
+                                ),
+                              )
+                            : SliverList.list(children: children),
                       ),
                       if (itemBuilder != null)
                         SliverPadding(
@@ -299,11 +339,21 @@ class LedgerRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(title, style: text.titleMedium),
-                      if (subtitle != null ||
-                          value != null && !inlineValue) ...[
+                      if (subtitle != null) ...[
                         const SizedBox(height: LedgerTokens.xs),
                         Text(
-                          subtitle ?? value!,
+                          subtitle!,
+                          style: text.bodySmall?.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                      if (value != null && !inlineValue) ...[
+                        const SizedBox(height: LedgerTokens.xs),
+                        Text(
+                          value!,
                           style: text.bodySmall?.copyWith(
                             color: Theme.of(
                               context,
