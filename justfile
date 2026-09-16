@@ -81,5 +81,14 @@ fuzz: property
 skills-check:
     go run ./tool/bootstrap.go skills-check
 
+recipes-check:
+    go run ./tool/bootstrap.go recipes-check
+
+generate-check:
+    go run ./tool/bootstrap.go generate-check --output lib/l10n/generated -- flutter gen-l10n
+
+ios-smoke:
+    go run ./tool/bootstrap.go ios-smoke
+
 test-integration target device:
     go run ./tool/bootstrap.go test-device {{if os() == "windows" { "'" + replace(target, "'", "''") + "'" } else { quote(target) }}} -d {{if os() == "windows" { "'" + replace(device, "'", "''") + "'" } else { quote(device) }}}

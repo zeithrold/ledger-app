@@ -74,7 +74,9 @@ for the supported adapter.
 ## Git and independent review
 
 `check` includes the shared `policy-check` ratchet, the `skills-check` comparison
-against the pinned skill templates, and `security` commands. Coverage thresholds
+against the pinned skill templates, the `recipes-check` agreement between this
+repository's `justfile`, `governance.json` and the workflows, and `security`
+commands. Coverage thresholds
 and baseline floors cannot decrease against the target revision; source roots
 cannot shrink, exclusions cannot be added, baseline expiry cannot extend, and a
 gate step or command that existed in the base policy cannot disappear without a
