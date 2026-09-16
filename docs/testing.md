@@ -20,14 +20,16 @@ Do not assert private implementation details merely to increase test counts. Pre
 just check
 ```
 
-The pinned Go CLI verifies the currency contract, resolves locked dependencies,
-generates localization classes, checks formatting and architecture, runs static
-analysis and offline tests, and enforces coverage. Generation can update
-`lib/l10n/generated`; review and retain those files with the change. CI additionally
-rejects committed generation and lockfile drift. The required floors are 70% full
-and 90% incremental executable-line coverage, with a complete handwritten-source
-inventory. These gates supplement behavioral and native testing; they do not
-prove correctness. See [governance](governance.md) for measurement and review rules.
+The pinned Go CLI verifies the currency contract, rejects gate-policy weakening
+and skill copies that drifted from the pinned templates, resolves locked
+dependencies, generates localization classes, checks formatting and architecture,
+runs static analysis and offline tests, and enforces coverage. Generation can
+update `lib/l10n/generated`; review and retain those files with the change. CI
+additionally rejects committed generation and lockfile drift. The required floors
+are 70% full and 90% incremental executable-line coverage, with a complete
+handwritten-source inventory. These gates supplement behavioral and native
+testing; they do not prove correctness. See [governance](governance.md) for
+measurement and review rules.
 
 `flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 

@@ -11,7 +11,7 @@ Flutter `gen-l10n` generates `AppLocalizations` from ARB files. `lib/l10n/app_en
 1. Add a semantic key, English text, and an `@key` description to `app_en.arb`.
 2. Add the same key to every translated ARB. Use ICU placeholders/plurals for variable messages instead of concatenating sentence fragments. Declare placeholder metadata in the English template.
 3. Run `flutter gen-l10n`; import `package:ledger_app/l10n/l10n.dart` in widgets and read `context.l10n.<key>`.
-4. Update tests for the affected text or behavior. Run `bash tool/check.sh` and affected device tests.
+4. Update tests for the affected text or behavior. Run `just check` and affected device tests.
 
 Do not hardcode authored text in widgets or edit `lib/l10n/generated/` by hand. Resource tests reject missing, empty and obsolete keys; the generator checks message syntax and template metadata. Generated files are versioned and checked for drift in CI. Literal expected messages in tests are intentional assertions, not production message sources.
 
@@ -41,10 +41,10 @@ script preference while authored UI copy still uses the existing ARBs. Search
 includes the code, active name, English name and symbol. Switching language reloads
 reference data and preserves form inputs. No amount is converted to floating point.
 
-Export new packs from the backend's pinned generator, then run
-`python3 tool/check_currencies.py`. The full check script also verifies pack hashes
-and coverage. Add regression cases for new locale aliases, scripts and parent
-exceptions when changing the registered bundles.
+Export new packs from the backend's pinned generator, then run `just check`, which
+verifies pack hashes, the exported contract record and coverage. Add regression
+cases for new locale aliases, scripts and parent exceptions when changing the
+registered bundles.
 
 Ledger welcome, wizard, Select and error copy lives in ARB resources. Clerk
 Account Portal owns its browser copy and localization; Flutter's retired Clerk

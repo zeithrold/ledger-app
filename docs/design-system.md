@@ -298,7 +298,7 @@ where needed while keeping information visible.
    Credit cards, debt and import components remain specifications.
 
 For every changed behavior, add observable widget tests with fake boundaries and
-run `bash tool/check.sh`. Before declaring the migration complete, require:
+run `just check`. Before declaring the migration complete, require:
 
 - English and Simplified Chinese; light, dark, and system modes.
 - 390x844 at 100%; 320x568 at 100% and 200%; 360x800 at 130%; 844x390 landscape;

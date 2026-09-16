@@ -162,7 +162,7 @@ Each UI change includes behavior tests and appropriate native captures:
    route's first frame does not cover its hidden branches.
 5. Exercise deterministic failure, unknown outcome, conflict, pagination retry,
    child-return refresh and session changes with fakes.
-6. Run `bash tool/check.sh` and affected device tests. Inspect native captures for
+6. Run `just check` and affected device tests. Inspect native captures for
    hierarchy, borders, padding and text. Record physical-device accessibility and
    live integrations separately, never infer them from widget tests.
 

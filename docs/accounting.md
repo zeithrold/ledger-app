@@ -52,7 +52,7 @@ Translations, light/dark themes, 320px width and 200% text are verified by tests
 ## Checks
 
 ```sh
-bash tool/check.sh
+just check
 ```
 
 Start the backend's `TestAccountingDeviceServer` with a fresh temporary

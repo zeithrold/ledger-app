@@ -78,8 +78,8 @@ capture-ui target device:
 
 fuzz: property
 
-mutation:
-    go run ./tool/bootstrap.go mutation
+skills-check:
+    go run ./tool/bootstrap.go skills-check
 
 test-integration target device:
     go run ./tool/bootstrap.go test-device {{if os() == "windows" { "'" + replace(target, "'", "''") + "'" } else { quote(target) }}} -d {{if os() == "windows" { "'" + replace(device, "'", "''") + "'" } else { quote(device) }}}

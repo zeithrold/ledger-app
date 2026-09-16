@@ -62,19 +62,24 @@ file is not an authored orchestration dependency and must not be removed.
 - Native keyboard tests must observe actual OS insets. Flutter-surface captures
   do not establish OS keyboard appearance, real authentication or backend writes.
 
-Mutation testing is a separate quality signal: run the pinned shared mutation
-adapter against affected pure logic, preserve killed/survived/invalid/timeout
-counts and equivalent-mutant explanations. An unavailable compatible Dart
-adapter is **blocked**, never a successful mutation run. Do not label manually
-edited examples, random property tests or screenshot differences as mutation
-coverage. See the shared governance tool documentation for supported adapters.
+Mutation testing is a separate quality signal for pure logic: preserve
+killed/survived/invalid/timeout counts and equivalent-mutant explanations. This
+repository configures **no** Dart mutation adapter, so mutation coverage is
+**blocked** and recorded as such in the development records; it is never
+reported as a score or as a passing gate, and no `just` recipe pretends to run
+one. Do not label manually edited examples, random property tests or screenshot
+differences as mutation coverage. See the shared governance tool documentation
+for the supported adapter.
 
 ## Git and independent review
 
-`check` includes the shared `policy-check` ratchet and `security` commands.
-Coverage thresholds and baseline floors cannot decrease against the target
-revision; source roots cannot shrink, exclusions cannot be added and baseline
-expiry cannot extend. Baselines require a start date and at most 30 days.
+`check` includes the shared `policy-check` ratchet, the `skills-check` comparison
+against the pinned skill templates, and `security` commands. Coverage thresholds
+and baseline floors cannot decrease against the target revision; source roots
+cannot shrink, exclusions cannot be added, baseline expiry cannot extend, and a
+gate step or command that existed in the base policy cannot disappear without a
+`command_migrations` entry naming an owner, a reason and an expiry within 30
+days. Baselines require a start date and at most 30 days.
 Gitleaks v8.30.1 scans an isolated source copy with fully redacted findings,
 without local environment files. `flutter pub outdated --json` provides advisory
 dependency information, including the package service's advisories when present;

@@ -225,6 +225,12 @@
         {
           "argv": [
             "@ledger-tool",
+            "skills-check"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
             "security"
           ],
           "timeout_seconds": 1200
