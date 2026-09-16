@@ -4,14 +4,53 @@ import 'package:http/http.dart' as http;
 
 import 'fakes.dart';
 
-Map<String, dynamic> accountFixture(String id, String currency) => {
+Map<String, dynamic> accountFixture(
+  String id,
+  String currency, {
+  String? name,
+}) => {
   'id': id,
-  'name': '$currency account',
+  'name': name ?? '$currency account',
   'kind': 'bank',
   'currency': currency,
   'balance': currency == 'USD' ? '899.00' : '720.00',
   'revision': 1,
   'archived': false,
+};
+
+/// A market reference-rate payload matching the read-only endpoint.
+///
+/// Fields the endpoint nulls for an unavailable pair stay null so callers get
+/// the same shape the transport decodes.
+Map<String, dynamic> marketRateFixture({
+  String base = 'USD',
+  String quote = 'CNY',
+  String status = 'available',
+  bool stale = false,
+  String? rate = '6.7082',
+  String? numerator = '67082',
+  String? denominator = '10000',
+  String? derived = 'direct',
+  String? pivot,
+  String? rateDate = '2026-09-15',
+  String? reason,
+}) => {
+  'base': base,
+  'quote': quote,
+  'status': status,
+  'stale': stale,
+  'source': 'frankfurter',
+  'provider_filter': 'blended',
+  'pivot': pivot,
+  'rate': rate,
+  'numerator': numerator,
+  'denominator': denominator,
+  'derived': derived,
+  'rate_date': rateDate,
+  'snapshot_date': '2026-09-16',
+  'fetched_at': '2026-09-16T17:10:03Z',
+  'latest_snapshot_date': '2026-09-16',
+  'reason': reason,
 };
 
 Map<String, dynamic> transactionFixture({
@@ -40,14 +79,25 @@ final accountingLinkFixture = {
   'kind': 'fee',
 };
 
-Future<http.Response> accountingFixture(http.Request request) async {
+Future<http.Response> accountingFixture(
+  http.Request request, {
+  List<Map<String, dynamic>>? accounts,
+  Map<String, dynamic> Function(String base, String quote)? rate,
+}) async {
+  if (rate != null && request.url.path.endsWith('exchange-rates')) {
+    return jsonResponse(
+      rate(
+        request.url.queryParameters['base'] ?? '',
+        request.url.queryParameters['quote'] ?? '',
+      ),
+    );
+  }
   final resource = request.url.path.split('/').last;
   if (resource == 'accounts') {
     return jsonResponse({
-      'accounts': [
-        accountFixture('usd', 'USD'),
-        accountFixture('cny', 'CNY'),
-      ],
+      'accounts':
+          accounts ??
+          [accountFixture('usd', 'USD'), accountFixture('cny', 'CNY')],
     });
   }
   if (resource == 'categories') {

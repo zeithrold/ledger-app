@@ -1193,5 +1193,71 @@
   "@detailLinkTransaction": {"description": "Transaction detail action menu: Link transaction"},
   "@detailLinkFee": {"description": "Transaction detail action menu: Link fee"},
   "@detailCloseActions": {"description": "Transaction detail action menu: Close"},
-  "@detailMenuLinkFeeHint": {"description": "Explains linking an existing fee in the transaction action menu."}
+  "@detailMenuLinkFeeHint": {"description": "Explains linking an existing fee in the transaction action menu."},
+  "referenceRateTitle": "Market reference rate",
+  "@referenceRateTitle": {
+    "description": "Heading for the read-only market reference rate on a cross-currency transfer."
+  },
+  "referenceRateLoading": "Checking the market reference rate…",
+  "@referenceRateLoading": {
+    "description": "Body shown while the market reference rate for the transfer pair is loading."
+  },
+  "referenceRateUnavailable": "No market reference rate is available for this pair.",
+  "@referenceRateUnavailable": {
+    "description": "Body shown when the market reference rate is unavailable or its request failed."
+  },
+  "referenceRateAvailable": "1 {base} = {rate} {quote} · effective {rateDate}",
+  "@referenceRateAvailable": {
+    "description": "Market reference rate line for an available pair.",
+    "placeholders": {
+      "base": {"type": "String"},
+      "rate": {"type": "String"},
+      "quote": {"type": "String"},
+      "rateDate": {"type": "String"}
+    }
+  },
+  "referenceRateAvailableVia": "1 {base} = {rate} {quote} · effective {rateDate} · derived through {pivot}",
+  "@referenceRateAvailableVia": {
+    "description": "Market reference rate line when the pair was derived through a pivot currency.",
+    "placeholders": {
+      "base": {"type": "String"},
+      "rate": {"type": "String"},
+      "quote": {"type": "String"},
+      "rateDate": {"type": "String"},
+      "pivot": {"type": "String"}
+    }
+  },
+  "referenceRateStale": "1 {base} = {rate} {quote} · effective {rateDate} · this snapshot predates today and may be outdated",
+  "@referenceRateStale": {
+    "description": "Market reference rate line for a stale snapshot, with a warning that it may be outdated.",
+    "placeholders": {
+      "base": {"type": "String"},
+      "rate": {"type": "String"},
+      "quote": {"type": "String"},
+      "rateDate": {"type": "String"}
+    }
+  },
+  "referenceRateStaleVia": "1 {base} = {rate} {quote} · effective {rateDate} · this snapshot predates today and may be outdated · derived through {pivot}",
+  "@referenceRateStaleVia": {
+    "description": "Stale market reference rate line when the pair was derived through a pivot currency.",
+    "placeholders": {
+      "base": {"type": "String"},
+      "rate": {"type": "String"},
+      "quote": {"type": "String"},
+      "rateDate": {"type": "String"},
+      "pivot": {"type": "String"}
+    }
+  },
+  "referenceRateUse": "Use this rate",
+  "@referenceRateUse": {
+    "description": "Explicit action that fills the destination amount from the market reference rate."
+  },
+  "referenceRateApplied": "Filled the destination amount from the market reference rate. Change it to the amount actually received.",
+  "@referenceRateApplied": {
+    "description": "Confirmation shown after the market reference rate filled the destination amount."
+  },
+  "referenceRateRetry": "Retry",
+  "@referenceRateRetry": {
+    "description": "Recovery action that refetches the market reference rate."
+  }
 }

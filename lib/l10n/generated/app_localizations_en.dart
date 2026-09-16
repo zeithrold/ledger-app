@@ -975,4 +975,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detailCloseActions => 'Close';
+
+  @override
+  String get referenceRateTitle => 'Market reference rate';
+
+  @override
+  String get referenceRateLoading => 'Checking the market reference rate…';
+
+  @override
+  String get referenceRateUnavailable =>
+      'No market reference rate is available for this pair.';
+
+  @override
+  String referenceRateAvailable(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  ) {
+    return '1 $base = $rate $quote · effective $rateDate';
+  }
+
+  @override
+  String referenceRateAvailableVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  ) {
+    return '1 $base = $rate $quote · effective $rateDate · derived through $pivot';
+  }
+
+  @override
+  String referenceRateStale(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  ) {
+    return '1 $base = $rate $quote · effective $rateDate · this snapshot predates today and may be outdated';
+  }
+
+  @override
+  String referenceRateStaleVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  ) {
+    return '1 $base = $rate $quote · effective $rateDate · this snapshot predates today and may be outdated · derived through $pivot';
+  }
+
+  @override
+  String get referenceRateUse => 'Use this rate';
+
+  @override
+  String get referenceRateApplied =>
+      'Filled the destination amount from the market reference rate. Change it to the amount actually received.';
+
+  @override
+  String get referenceRateRetry => 'Retry';
 }

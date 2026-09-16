@@ -14,6 +14,23 @@ over-precision, exponents, special values and absolute amounts of `10^18` or mor
 Aggregate display can exceed the individual-entry bound. Financial arithmetic
 never uses binary floating point. Currency metadata comes from `/currencies`;
 both amounts of a transfer remain independently entered decimal strings.
+`LedgerMoney.scaledByRatio` converts through an exact integer ratio
+(`units * numerator * 10^destinationScale / (denominator * 10^scale)`), rounding
+half to even on a tie and rejecting a non-integer, non-positive or negative-scale
+input with `FormatException`.
+
+## Market reference rate
+
+`GET /exchange-rates?base=…&quote=…` is a read-only reference for the transfer
+form. It answers `200` for `available`, `stale` and `unavailable` pairs;
+`MarketRate.fromJson` tolerates the nullable reference fields an unavailable pair
+returns. `AccountingApi.exchangeRate` decodes it through the shared
+malformed-body guard. The endpoint never posts or converts anything: the
+destination principal stays user-entered, and only the explicit "Use this rate"
+action may fill it through `scaledByRatio`. The block fetches once per valid
+cross-currency pair; a monotonic sequence and the accounting scope reject a late
+response from an older pair or session. A failure or snapshot change preserves
+every draft field.
 
 ## Writing and correction
 

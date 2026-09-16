@@ -128,6 +128,18 @@ which fees remain unchanged. Corrections compare old and new values. Reversals
 show their actual effect. Fees default to unselected. Do not aggregate currencies
 without an explicit business conversion contract.
 
+## Read-only reference data
+
+A reference value that suggests, but never owns, a business field uses a
+`LedgerNotice` with one optional action. The notice states the value, its date
+and any staleness or derivation caveat; loading, unavailable and failure states
+keep the same boundary and offer retry instead of a value. Applying the
+suggestion is always an explicit user action that fills the field through exact
+`BigInt` arithmetic. Never auto-fill or silently overwrite a draft, never
+replace entered text on a failed refresh, and disable the action while the form
+is frozen. A reference fetch is scoped to its request pair so a late response
+cannot overwrite a newer selection or another session.
+
 ## States and recovery
 
 | State | Contract |

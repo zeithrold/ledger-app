@@ -65,6 +65,16 @@ class AccountingApi {
         transport.request('GET', bookPath(book, 'summary'), null, filter),
         LedgerSummary.fromJson,
       );
+  Future<MarketRate> exchangeRate({
+    required String base,
+    required String quote,
+  }) => _decode(
+    transport.request('GET', 'exchange-rates', null, {
+      'base': base,
+      'quote': quote,
+    }),
+    MarketRate.fromJson,
+  );
   Future<Json> mutate(String method, String path, Json? body, String key) =>
       transport.request(method, path, body, null, key);
 }

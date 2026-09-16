@@ -916,4 +916,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get detailCloseActions => '关闭';
+
+  @override
+  String get referenceRateTitle => '市场参考汇率';
+
+  @override
+  String get referenceRateLoading => '正在查询市场参考汇率…';
+
+  @override
+  String get referenceRateUnavailable => '当前货币对暂无市场参考汇率。';
+
+  @override
+  String referenceRateAvailable(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  ) {
+    return '1 $base = $rate $quote · 生效日期 $rateDate';
+  }
+
+  @override
+  String referenceRateAvailableVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  ) {
+    return '1 $base = $rate $quote · 生效日期 $rateDate · 通过 $pivot 套算';
+  }
+
+  @override
+  String referenceRateStale(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  ) {
+    return '1 $base = $rate $quote · 生效日期 $rateDate · 该快照早于今日，可能已过期';
+  }
+
+  @override
+  String referenceRateStaleVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  ) {
+    return '1 $base = $rate $quote · 生效日期 $rateDate · 该快照早于今日，可能已过期 · 通过 $pivot 套算';
+  }
+
+  @override
+  String get referenceRateUse => '使用此汇率';
+
+  @override
+  String get referenceRateApplied => '已按市场参考汇率填入转入金额，请改为实际收到的金额。';
+
+  @override
+  String get referenceRateRetry => '重试';
 }

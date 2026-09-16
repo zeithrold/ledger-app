@@ -1915,6 +1915,88 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get detailCloseActions;
+
+  /// Heading for the read-only market reference rate on a cross-currency transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Market reference rate'**
+  String get referenceRateTitle;
+
+  /// Body shown while the market reference rate for the transfer pair is loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the market reference rate…'**
+  String get referenceRateLoading;
+
+  /// Body shown when the market reference rate is unavailable or its request failed.
+  ///
+  /// In en, this message translates to:
+  /// **'No market reference rate is available for this pair.'**
+  String get referenceRateUnavailable;
+
+  /// Market reference rate line for an available pair.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {base} = {rate} {quote} · effective {rateDate}'**
+  String referenceRateAvailable(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  );
+
+  /// Market reference rate line when the pair was derived through a pivot currency.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {base} = {rate} {quote} · effective {rateDate} · derived through {pivot}'**
+  String referenceRateAvailableVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  );
+
+  /// Market reference rate line for a stale snapshot, with a warning that it may be outdated.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {base} = {rate} {quote} · effective {rateDate} · this snapshot predates today and may be outdated'**
+  String referenceRateStale(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+  );
+
+  /// Stale market reference rate line when the pair was derived through a pivot currency.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {base} = {rate} {quote} · effective {rateDate} · this snapshot predates today and may be outdated · derived through {pivot}'**
+  String referenceRateStaleVia(
+    String base,
+    String rate,
+    String quote,
+    String rateDate,
+    String pivot,
+  );
+
+  /// Explicit action that fills the destination amount from the market reference rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this rate'**
+  String get referenceRateUse;
+
+  /// Confirmation shown after the market reference rate filled the destination amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled the destination amount from the market reference rate. Change it to the amount actually received.'**
+  String get referenceRateApplied;
+
+  /// Recovery action that refetches the market reference rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get referenceRateRetry;
 }
 
 class _AppLocalizationsDelegate

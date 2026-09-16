@@ -136,7 +136,7 @@ tool/             Local quality-check entrypoint
 docs/             Durable English development guides
 ```
 
-The client implements the current `2026-09-16` backend contract. Deploy the matching backend through migration `00004_currency_metadata.sql`. Currency display names come from the versioned local CLDR pack; the API supplies language-neutral accounting metadata. Administrator screens, credit cards/debt, automatic exchange rates, AI imports, new-book creation and offline business-data persistence remain later work.
+The client implements the current `2026-09-16` backend contract. Deploy the matching backend through migration `00004_currency_metadata.sql`. Currency display names come from the versioned local CLDR pack; the API supplies language-neutral accounting metadata. The transfer form offers a read-only market reference rate that can prefill the destination amount; postings still record the user-entered actual received amount, and no amount is ever converted automatically. Administrator screens, credit cards/debt, AI imports, new-book creation and offline business-data persistence remain later work.
 
 Dated development and validation records belong in the sibling `ledger-manuscript/development-records/` directory, outside this source repository. Keep this README and `docs/` focused on maintained reference material.
 

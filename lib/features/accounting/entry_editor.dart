@@ -56,6 +56,157 @@ class _EntrySnapshot {
   final LedgerTransactionDetail? original;
 }
 
+/// A read-only market reference for a cross-currency transfer pair.
+///
+/// The block owns one fetch per valid pair. A monotonically increasing
+/// sequence and the accounting scope guard every response, so a late read can
+/// never overwrite a newer pair or a changed session. It never writes to a
+/// draft field on its own: only the explicit "Use this rate" action converts.
+class _MarketReferenceRateBlock extends StatefulWidget {
+  const _MarketReferenceRateBlock({
+    required this.controller,
+    required this.base,
+    required this.quote,
+    required this.frozen,
+    required this.onApply,
+  });
+  final AccountingController controller;
+  final String base;
+  final String quote;
+  final bool frozen;
+  final void Function(MarketRate rate) onApply;
+  @override
+  State<_MarketReferenceRateBlock> createState() =>
+      _MarketReferenceRateBlockState();
+}
+
+class _MarketReferenceRateBlockState extends State<_MarketReferenceRateBlock> {
+  int _sequence = 0;
+  bool _loading = false;
+  MarketRate? _rate;
+  ApiFailure? _failure;
+
+  @override
+  void initState() {
+    super.initState();
+    _beginFetch(notify: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant _MarketReferenceRateBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.base != widget.base || oldWidget.quote != widget.quote) {
+      // The rebuild that follows this callback renders the reset state.
+      _beginFetch(notify: false);
+    }
+  }
+
+  void _beginFetch({bool notify = true}) {
+    final sequence = ++_sequence;
+    final scope = widget.controller.scope;
+    void reset() {
+      _loading = true;
+      _rate = null;
+      _failure = null;
+    }
+
+    if (notify) {
+      setState(reset);
+    } else {
+      reset();
+    }
+    unawaited(_resolve(sequence, scope));
+  }
+
+  Future<void> _resolve(int sequence, String scope) async {
+    try {
+      final rate = await widget.controller.api.exchangeRate(
+        base: widget.base,
+        quote: widget.quote,
+      );
+      if (!mounted ||
+          sequence != _sequence ||
+          widget.controller.scope != scope) {
+        return;
+      }
+      setState(() {
+        _rate = rate;
+        _loading = false;
+      });
+    } on ApiFailure catch (failure) {
+      if (!mounted ||
+          sequence != _sequence ||
+          widget.controller.scope != scope) {
+        return;
+      }
+      widget.controller.identity.handleFailure(failure);
+      if (!mounted ||
+          sequence != _sequence ||
+          widget.controller.scope != scope) {
+        return;
+      }
+      setState(() {
+        _failure = failure;
+        _rate = null;
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final rate = _rate;
+    final String body;
+    Widget? action;
+    var isError = false;
+    if (_loading) {
+      body = l10n.referenceRateLoading;
+    } else if (_failure != null ||
+        rate == null ||
+        !rate.usable ||
+        rate.rate == null) {
+      body = l10n.referenceRateUnavailable;
+      isError = _failure != null;
+      action = TextButton(
+        key: const ValueKey('reference-rate-retry'),
+        onPressed: widget.frozen ? null : _beginFetch,
+        child: Text(l10n.referenceRateRetry),
+      );
+    } else {
+      final stale = rate.status == 'stale';
+      final pivot = rate.pivot ?? '';
+      final via = rate.derivedThroughPivot && pivot.isNotEmpty;
+      final base = rate.base;
+      final quote = rate.quote;
+      final value = rate.rate!;
+      final date = rate.rateDate ?? '';
+      body = stale
+          ? via
+                ? l10n.referenceRateStaleVia(base, value, quote, date, pivot)
+                : l10n.referenceRateStale(base, value, quote, date)
+          : via
+          ? l10n.referenceRateAvailableVia(base, value, quote, date, pivot)
+          : l10n.referenceRateAvailable(base, value, quote, date);
+      action = TextButton(
+        key: const ValueKey('reference-rate-use'),
+        onPressed: widget.frozen ? null : () => widget.onApply(rate),
+        child: Text(l10n.referenceRateUse),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: LedgerTokens.lg),
+      child: LedgerNotice(
+        key: const ValueKey('reference-rate'),
+        title: l10n.referenceRateTitle,
+        body: body,
+        action: action,
+        isError: isError,
+      ),
+    );
+  }
+}
+
 class _EntryEditorState extends LedgerMutationState<EntryEditor> {
   final GlobalKey _unavailableNoticeKey = GlobalKey();
   final amount = TextEditingController();
@@ -270,6 +421,38 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
   }
 
   String accountName(String id) => ledger.account(id)?.name ?? '';
+
+  /// Fills the destination principal from the market reference rate.
+  ///
+  /// This runs only from the explicit "Use this rate" action. An amount that
+  /// cannot be parsed leaves the field untouched; its validator already
+  /// reports it.
+  void applyReferenceRate(MarketRate rate) {
+    final source = ledger.account(account);
+    final target = ledger.account(destination);
+    final numerator = rate.numerator;
+    final denominator = rate.denominator;
+    if (source == null ||
+        target == null ||
+        numerator == null ||
+        denominator == null) {
+      return;
+    }
+    final LedgerMoney converted;
+    try {
+      converted = LedgerMoney.parse(
+        amount.text,
+        ledger.scale(source.currency),
+      ).scaledByRatio(numerator, denominator, ledger.scale(target.currency));
+    } on FormatException {
+      return;
+    }
+    setState(() => toAmount.text = converted.decimal);
+    fieldChanged('entry-to-amount');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.referenceRateApplied)),
+    );
+  }
 
   List<Choice> accountChoices(String selected) => [
     for (final a in ledger.accounts.where(
@@ -920,6 +1103,19 @@ class _EntryEditorState extends LedgerMutationState<EntryEditor> {
                         keyName: 'entry-to-amount',
                         aliases: const ['to_amount', 'entry.to_amount'],
                       ),
+                      if (account.isNotEmpty &&
+                          destination.isNotEmpty &&
+                          account != destination &&
+                          currency.isNotEmpty &&
+                          destinationCurrency.isNotEmpty &&
+                          currency != destinationCurrency)
+                        _MarketReferenceRateBlock(
+                          controller: c,
+                          base: currency,
+                          quote: destinationCurrency,
+                          frozen: frozen,
+                          onApply: applyReferenceRate,
+                        ),
                     ],
                     if (kind == 'expense' ||
                         kind == 'income' ||

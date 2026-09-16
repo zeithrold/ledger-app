@@ -55,4 +55,51 @@ class LedgerMoney {
     return '${units.isNegative ? '-' : ''}$grouped'
         '${scale > 0 ? '.${pieces.last}' : ''} $currency';
   }
+
+  /// Converts through an exact market ratio.
+  ///
+  /// The destination minor units are
+  /// `units * numerator * 10^destinationScale / (denominator * 10^scale)`,
+  /// rounded half to even on an exact tie. Only `BigInt` arithmetic
+  /// participates; binary floating point never does. A non-integer or
+  /// non-positive numerator/denominator and a negative [destinationScale]
+  /// raise a [FormatException].
+  LedgerMoney scaledByRatio(
+    String numerator,
+    String denominator,
+    int destinationScale,
+  ) {
+    if (destinationScale < 0) {
+      throw const FormatException('Invalid destination scale');
+    }
+    final dividend =
+        units *
+        _positiveInteger(numerator, 'numerator') *
+        BigInt.from(10).pow(destinationScale);
+    final divisor =
+        _positiveInteger(denominator, 'denominator') *
+        BigInt.from(10).pow(scale);
+    return LedgerMoney(_divideHalfEven(dividend, divisor), destinationScale);
+  }
+
+  static BigInt _positiveInteger(String text, String name) {
+    if (!RegExp(r'^[0-9]+$').hasMatch(text)) {
+      throw FormatException('Invalid $name');
+    }
+    final value = BigInt.parse(text);
+    if (value <= BigInt.zero) throw FormatException('Invalid $name');
+    return value;
+  }
+
+  /// Rounds an exact integer division to the nearest even value on a tie.
+  static BigInt _divideHalfEven(BigInt dividend, BigInt divisor) {
+    final magnitude = dividend.abs();
+    final quotient = magnitude ~/ divisor;
+    final remainder = magnitude % divisor;
+    final twice = remainder * BigInt.two;
+    final rounded = twice > divisor || (twice == divisor && quotient.isOdd)
+        ? quotient + BigInt.one
+        : quotient;
+    return dividend.isNegative ? -rounded : rounded;
+  }
 }

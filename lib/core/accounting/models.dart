@@ -131,3 +131,52 @@ class LedgerSummary {
   final List<Json> totals;
   final List<Json> categories;
 }
+
+/// A read-only market reference rate for one currency pair.
+///
+/// A usable answer is HTTP 200, where [status] distinguishes an available,
+/// stale or unavailable pair; malformed, equal or non-catalog codes are
+/// rejected with Problem Details instead. Reference fields stay null whenever
+/// the pair is unavailable, so every optional member tolerates a missing or
+/// null wire value.
+class MarketRate {
+  MarketRate.fromJson(Json json)
+    : base = json['base'] as String,
+      quote = json['quote'] as String,
+      status = json['status'] as String,
+      source = json['source'] as String,
+      stale = json['stale'] as bool? ?? false,
+      providerFilter = json['provider_filter'] as String?,
+      pivot = json['pivot'] as String?,
+      rate = json['rate'] as String?,
+      numerator = json['numerator'] as String?,
+      denominator = json['denominator'] as String?,
+      derived = json['derived'] as String?,
+      rateDate = json['rate_date'] as String?,
+      snapshotDate = json['snapshot_date'] as String?,
+      fetchedAt = json['fetched_at'] as String?,
+      latestSnapshotDate = json['latest_snapshot_date'] as String?,
+      reason = json['reason'] as String?;
+  final String base;
+  final String quote;
+  final String status;
+  final String source;
+  final bool stale;
+  final String? providerFilter;
+  final String? pivot;
+  final String? rate;
+  final String? numerator;
+  final String? denominator;
+  final String? derived;
+  final String? rateDate;
+  final String? snapshotDate;
+  final String? fetchedAt;
+  final String? latestSnapshotDate;
+  final String? reason;
+
+  /// A stale rate is still usable as a reference, only dated.
+  bool get usable => status == 'available' || status == 'stale';
+
+  /// True when the pair was derived through a pivot currency.
+  bool get derivedThroughPivot => derived == 'cross';
+}

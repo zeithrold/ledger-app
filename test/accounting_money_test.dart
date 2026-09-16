@@ -50,4 +50,80 @@ void main() {
       throwsArgumentError,
     );
   });
+  test('ratio conversion rounds half to even on exact ties', () {
+    for (final (units, expected) in [
+      (5, '2'),
+      (7, '4'),
+      (15, '8'),
+      (25, '12'),
+      (-5, '-2'),
+      (-7, '-4'),
+    ]) {
+      expect(
+        LedgerMoney(BigInt.from(units), 0).scaledByRatio('1', '2', 0).decimal,
+        expected,
+      );
+    }
+  });
+  test('ratio conversion keeps an exact repeating ratio', () {
+    expect(
+      LedgerMoney(BigInt.two, 0).scaledByRatio('1', '3', 2).decimal,
+      '0.67',
+    );
+    expect(
+      LedgerMoney(BigInt.from(10), 0).scaledByRatio('1', '3', 2).decimal,
+      '3.33',
+    );
+    expect(
+      LedgerMoney(
+        BigInt.from(10000),
+        2,
+      ).scaledByRatio('67082', '10000', 2).decimal,
+      '670.82',
+    );
+    expect(
+      LedgerMoney.parse('0.00', 2).scaledByRatio('67082', '10000', 2).decimal,
+      '0.00',
+    );
+  });
+  test('ratio conversion never loses precision to a double', () {
+    final source = LedgerMoney.parse('9999999999999999.99', 2);
+    final converted = source.scaledByRatio('67082', '10000', 2);
+    expect(converted.decimal, '67081999999999999.93');
+    expect(
+      converted.units,
+      BigInt.parse('6708199999999999993'),
+    );
+    expect(converted.scale, 2);
+    // The same computation through a double silently picks a different value.
+    expect(
+      (source.units.toDouble() * 67082 / 10000 / 100).toStringAsFixed(2),
+      '67082000000000000.00',
+    );
+    expect(converted.decimal, isNot('67082000000000000.00'));
+  });
+  test('ratio conversion rejects an invalid ratio or scale', () {
+    final amount = LedgerMoney.parse('1.00', 2);
+    for (final (numerator, denominator, scale) in [
+      ('0', '10', 2),
+      ('-1', '10', 2),
+      ('1.5', '10', 2),
+      ('1e2', '10', 2),
+      ('+1', '10', 2),
+      ('', '10', 2),
+      ('one', '10', 2),
+      ('1', '0', 2),
+      ('1', '-10', 2),
+      ('1', '2.5', 2),
+      ('1', 'two', 2),
+      ('1', '', 2),
+      ('1', '10', -1),
+    ]) {
+      expect(
+        () => amount.scaledByRatio(numerator, denominator, scale),
+        throwsFormatException,
+        reason: '$numerator/$denominator at $scale',
+      );
+    }
+  });
 }
