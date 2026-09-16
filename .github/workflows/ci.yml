@@ -3,23 +3,116 @@ name: CI
 on:
   push:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   quality:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Install the pinned Flutter SDK
-        run: |
-          git clone --depth 1 --branch 3.41.7 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
-          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
-      - name: Generate, analyze and test
-        run: bash tool/check.sh
-      - name: Verify generated files and lockfile are checked in
-        run: |
-          git diff --exit-code -- pubspec.lock lib
-          test -z "$(git ls-files --others --exclude-standard -- lib)"
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.6'
+          cache: false
+      - uses: extractions/setup-just@v3
+      - name: Validate pull request title
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: go run ./tool/bootstrap.go commit-check "$env:PR_TITLE"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.7'
+          channel: stable
+          cache: true
+      - name: Run the same local quality gate
+        run: just check
+        env:
+          LEDGER_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD' }}
+      - name: Verify committed generated files and lockfile
+        run: git diff --exit-code -- pubspec.lock lib/l10n/generated
+      - name: Classify pull request changes
+        if: github.event_name == 'pull_request'
+        id: changes
+        run: go run ./tool/bootstrap.go changes --base "origin/${{ github.base_ref }}" --github-output "$env:GITHUB_OUTPUT"
+        shell: pwsh
+      - name: Require independent code review evidence
+        if: github.event_name == 'pull_request' && (steps.changes.outputs.code == 'true' || steps.changes.outputs.policy == 'true')
+        run: just review-check
+      - name: Require matched UI change evidence
+        if: github.event_name == 'pull_request' && steps.changes.outputs.visual == 'true'
+        run: just ui-report .governance/ui.json
+      - name: Retain coverage and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-${{ matrix.os }}
+          path: |
+            coverage/
+            .governance/reports/
+          if-no-files-found: warn
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.6'
+          cache: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.7'
+          channel: stable
+          cache: true
+      - name: Resolve locked dependencies
+        run: go run ./tool/bootstrap.go bootstrap
+      - name: Run deterministic native smoke flows
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: go run ./tool/bootstrap.go test-device integration_test/app_test.dart -d emulator-5554
+
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.6'
+          cache: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.7'
+          channel: stable
+          cache: true
+      - name: Resolve locked dependencies
+        run: go run ./tool/bootstrap.go bootstrap
+      - name: Run deterministic native smoke on a named simulator
+        run: go run ./tool/bootstrap.go ios-smoke
+      - name: Shut down the ephemeral simulator
+        if: always()
+        run: xcrun simctl shutdown Ledger-CI
+      - name: Delete the ephemeral simulator
+        if: always()
+        run: xcrun simctl delete Ledger-CI

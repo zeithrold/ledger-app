@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "fingerprint": "7095ea711222ef09f428bc8c1178a85e842163d0ce01d15e6d14beb2f445fbd0",
+  "reviewer": "/root/backend_audit",
+  "independent": true,
+  "scope": [
+    "App-authored tool/governance architecture and coverage inventory implementation",
+    "test/governance and exact-money property tests",
+    "integration_test/app_test.dart deterministic locale fixture",
+    "governance.json, justfile, CI and pinned dependency declarations",
+    "AGENTS.md, governance/debug/review skills and development documentation",
+    "Consumer checksum lock and generated bootstrap integration; shared-tool implementation is separately reviewed"
+  ],
+  "findings": [
+    {
+      "severity": "P1",
+      "file": "tool/governance/analyze.dart",
+      "line": 15,
+      "rule": "Normalize native paths before architecture and inventory matching",
+      "trigger": "Windows source paths contain single backslashes; the previous raw-string replacement matched two backslashes.",
+      "impact": "Architecture rules could miss Windows dependencies and the coverage inventory would disagree with normalized source paths.",
+      "recommendation": "Use the shared repositoryPath normalization and retain the explicit Windows-path regression. The final implementation and independently executed nine-test architecture suite satisfy this recommendation.",
+      "resolved": true
+    },
+    {
+      "severity": "P2",
+      "file": ".github/workflows/ci.yml",
+      "line": 29,
+      "rule": "Mechanically enforce the documented commit-title convention",
+      "trigger": "A pull request previously had no invocation of the existing commit-check capability.",
+      "impact": "Invalid squash-commit titles could pass the declared Git governance workflow.",
+      "recommendation": "Validate pull request titles using an environment variable and quoted argument rather than expression interpolation into shell code. The final workflow implements this and includes edited-title events.",
+      "resolved": true
+    },
+    {
+      "severity": "P1",
+      "file": ".github/workflows/ci.yml",
+      "line": 56,
+      "rule": "Keep CI callers compatible with typed just recipe interfaces",
+      "trigger": "The UI report recipe changed to one manifest parameter while CI still passed --manifest plus the path as two parameters.",
+      "impact": "Every visual-change pull request would fail before the UI evidence checker ran.",
+      "recommendation": "Call just ui-report .governance/ui.json and update the matching documentation. The corrected invocation passes an independent just dry run.",
+      "resolved": true
+    },
+    {
+      "severity": "P2",
+      "file": "justfile",
+      "line": 48,
+      "rule": "Do not depend on native empty-argument forwarding in Windows PowerShell",
+      "trigger": "Default coverage and changes recipes previously emitted --base followed by an empty quoted argument.",
+      "impact": "Windows PowerShell native argument handling could omit the empty value and leave the Go flag without a value.",
+      "recommendation": "Omit the entire --base fragment when no explicit base is supplied. Final recipes do so and local dry runs confirm the default and explicit-argument forms.",
+      "resolved": true
+    }
+  ],
+  "limitations": [
+    "The reviewer authored the shared currency migration and removal of tool/check_currencies.py; those changes are excluded from this independent approval. The root agent separately verified byte-for-byte currency export parity, and another reviewer reviewed the shared implementation.",
+    "The shared tooling bundle contains work authored by this reviewer and is not independently approved by this consumer review; its producer review is separate. The frozen consumer bundle checksum is 298afe99d216cb40bab16b3215572c3d12da0dfb351318ec349a4f5d52652fc3.",
+    "Independently executed the App architecture regression suite (nine passing tests), typed-recipe dry runs and git diff --check. Android and iOS native-smoke results were reported by the App implementer and were not rerun by this reviewer.",
+    "Remote CI and native Windows/Linux execution were not independently run. A matching review fingerprint establishes freshness, not cryptographically authenticated reviewer identity.",
+    "No product UI source behavior changed in this App diff; the integration-test locale change isolates the smoke fixture from device language. This review does not establish live authentication, production writes, or visual acceptance of future UI changes."
+  ]
+}

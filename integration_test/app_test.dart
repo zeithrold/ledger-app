@@ -16,6 +16,10 @@ void main() {
     (
       tester,
     ) async {
+      // This scenario chooses both languages explicitly, independently of the
+      // simulator owner's device language and retained simulator settings.
+      tester.platformDispatcher.localesTestValue = [const Locale('en')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
       Widget application() => ProviderScope(
         overrides: [
           appConfigProvider.overrideWithValue(

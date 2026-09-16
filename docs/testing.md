@@ -17,10 +17,17 @@ Do not assert private implementation details merely to increase test counts. Pre
 ## Local quality gate
 
 ```sh
-bash tool/check.sh
+just check
 ```
 
-The script verifies the exported currency pack and its contract record, resolves the locked dependencies, generates localization classes, checks formatting, runs static analysis, and runs offline tests with coverage output. Generation can update `lib/l10n/generated`; review and retain those files with the change. CI runs the same command and additionally rejects lockfile drift or untracked files under `lib/`. Coverage is diagnostic; the client does not claim an arbitrary coverage percentage as a quality guarantee.
+The pinned Go CLI verifies the currency contract, resolves locked dependencies,
+generates localization classes, checks formatting and architecture, runs static
+analysis and offline tests, and enforces coverage. Generation can update
+`lib/l10n/generated`; review and retain those files with the change. CI additionally
+rejects committed generation and lockfile drift. The required floors are 70% full
+and 90% incremental executable-line coverage, with a complete handwritten-source
+inventory. These gates supplement behavioral and native testing; they do not
+prove correctness. See [governance](governance.md) for measurement and review rules.
 
 `flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 

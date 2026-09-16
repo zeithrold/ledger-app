@@ -62,7 +62,7 @@ inside the viewport, or all action labels remaining reachable at 200% text.
 Use deterministic fakes for failures and recovery; do not use production data.
 
 Apply the locale, theme and viewport matrix in `docs/ui-patterns.md`. Run
-`bash tool/check.sh` and affected native flows when UI behavior changes. Inspect
+`just check` and affected native flows when UI behavior changes. Inspect
 native captures of affected states. A simulated keyboard inset is not evidence of
 an actual OS keyboard interaction; a build is not a successful device test.
 Documentation-only changes require link/instruction validation and the repository

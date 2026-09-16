@@ -30,7 +30,7 @@
 - Cover observable behavior: navigation, user actions, state transitions, localization and relevant loading/empty/error states. Exercise both supported languages and small-screen/large-text layouts for layout or copy changes.
 - Add unit tests for new nontrivial state/data logic and device integration tests for critical flows or platform/plugin interactions. Use golden tests only when pixel-level appearance is the actual contract; do not replace interaction tests with snapshots.
 - Tests must be deterministic and must not use developer credentials, production services or real telemetry. Use provider overrides and fakes at external boundaries.
-- Run `bash tool/check.sh` before delivery. Run affected device tests when UI flows or platform integrations change. A build is not evidence of a successful device run.
+- Run `just check` before delivery. Run affected device tests when UI flows or platform integrations change. A build is not evidence of a successful device run.
 - Report passed, failed, blocked and unrun checks separately. Missing SDKs, credentials, devices or network access are blockers, never silently skipped passes. Remote CI is unverified until it actually runs.
 - Do not hand-edit generated localization classes; regenerate them with `flutter gen-l10n` and retain them with the dependency lockfiles in version control. State and models are hand-written: declare providers with `NotifierProvider` or plain `Provider` and keep JSON parsing explicit. Do not add `build_runner`, `riverpod_generator` or `json_serializable`.
 
@@ -45,11 +45,25 @@
 
   Keep `.env.local` untracked, and keep `.env.example` limited to empty values and public defaults.
 - `--dart-define` always wins over `.env.local`, so a single value can be overridden inline, including `--dart-define=SENTRY_DSN=` to disable reporting.
-- `tool/check.sh` must not require `.env.local` to exist, and no check may read it.
-- The contract revision the client sends lives in `ledger_transport.dart` and is verified against the exported pack by `tool/check_currencies.py`. Change it only together with a backend contract revision, and re-export the pack.
+- `just check` must not require `.env.local` to exist, and no check may read it.
+- The contract revision the client sends lives in `ledger_transport.dart` and is verified against the exported pack by the shared `currency --app-check` command. Change it only together with a backend contract revision, and re-export the pack.
 
 ## Scope
 
 - Preserve unrelated changes. Do not modify the sibling backend or copy its `.env.local` unless explicitly requested.
 - Phase 2 includes Clerk authentication, secure session persistence, personal bootstrap, read-only books, server-backed preferences and manual multi-currency asset accounting. Use the 2026-09-16 contract and exact BigInt amounts. Administrator screens, credit cards/debt, automatic FX, AI imports, new-book creation and offline business-data persistence remain out of scope. Signed-out theme/language choices remain process-local.
 - Treat `API_BASE_URL` from AppConfig as the only runtime server source. Settings must display the endpoint read-only; do not add endpoint editing, endpoint setup gates or endpoint preference overrides. Dart Define takes precedence over local debug `.env.local` values. Missing or invalid configuration disables network client creation.
+
+## Mechanical governance and independent review
+
+- Follow `docs/governance.md`; `governance.json` is the machine-readable policy.
+- Use `just` and the pinned Go governance CLI. Do not introduce Python or shell
+  orchestration. Keep platform-native generated build scripts intact.
+- Require 70% full and 90% incremental line coverage with explicit production
+  inventory; never hide new files or expand generated-code exclusions.
+- Every code change requires an independent architecture subagent review using
+  `.agents/skills/ledger-architecture-review/SKILL.md`. Record actionable findings,
+  dispositions and evidence bound to the final source fingerprint.
+- Use `.agents/skills/ledger-debug/SKILL.md` for reproducible diagnosis and repair.
+- Squash reviewed PRs using Conventional Commit titles. Keep unrelated work out
+  of the change and distinguish locally passed checks from unrun remote CI.

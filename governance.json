@@ -1,0 +1,476 @@
+{
+  "schema_version": 1,
+  "kind": "flutter",
+  "commands": {
+    "doctor": {
+      "description": "Inspect Flutter and native build prerequisites",
+      "steps": [
+        {
+          "argv": [
+            "@ledger-tool",
+            "version-check",
+            "--pattern",
+            "(?m)^Flutter 3\\.41\\.7 ",
+            "--",
+            "flutter",
+            "--version"
+          ],
+          "timeout_seconds": 45
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "version-check",
+            "--pattern",
+            "(?m)^Dart SDK version: 3\\.11\\.5 ",
+            "--",
+            "dart",
+            "--version"
+          ],
+          "timeout_seconds": 45
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "version-check",
+            "--pattern",
+            "(?m)^go version go1\\.26\\.6 ",
+            "--",
+            "go",
+            "version"
+          ],
+          "timeout_seconds": 45
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "version-check",
+            "--pattern",
+            "(?m)^(?:openjdk|java) version \"21(?:\\.|\\\")",
+            "--",
+            "java",
+            "-version"
+          ],
+          "timeout_seconds": 45
+        },
+        {
+          "argv": [
+            "flutter",
+            "doctor",
+            "-v"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "bootstrap": {
+      "description": "Resolve the committed dependency lock",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "pub",
+            "get",
+            "--enforce-lockfile"
+          ],
+          "timeout_seconds": 300
+        }
+      ]
+    },
+    "generate": {
+      "description": "Regenerate committed localization classes",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "gen-l10n"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "format": {
+      "description": "Format authored Dart code",
+      "steps": [
+        {
+          "argv": [
+            "dart",
+            "format",
+            "lib",
+            "test",
+            "integration_test",
+            "test_driver",
+            "tool/governance"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "lint": {
+      "description": "Check formatting and static diagnostics",
+      "steps": [
+        {
+          "argv": [
+            "dart",
+            "format",
+            "--output=none",
+            "--set-exit-if-changed",
+            "lib",
+            "test",
+            "integration_test",
+            "test_driver",
+            "tool/governance"
+          ],
+          "timeout_seconds": 120
+        },
+        {
+          "argv": [
+            "dart",
+            "analyze",
+            "--fatal-infos"
+          ],
+          "timeout_seconds": 180
+        }
+      ]
+    },
+    "arch": {
+      "description": "Parse Dart dependencies and enforce ownership boundaries",
+      "steps": [
+        {
+          "argv": [
+            "dart",
+            "run",
+            "tool/governance/analyze.dart"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "test": {
+      "description": "Run deterministic tests and inventory every production source",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "--coverage"
+          ],
+          "timeout_seconds": 600
+        },
+        {
+          "argv": [
+            "dart",
+            "run",
+            "tool/governance/analyze.dart",
+            "--clean-tool-coverage"
+          ],
+          "timeout_seconds": 60
+        },
+        {
+          "argv": [
+            "dart",
+            "test",
+            "test/governance/architecture_test.dart",
+            "--coverage=coverage/tool"
+          ],
+          "timeout_seconds": 120
+        },
+        {
+          "argv": [
+            "dart",
+            "run",
+            "coverage:format_coverage",
+            "--lcov",
+            "--in=coverage/tool",
+            "--out=coverage/tool.lcov.info",
+            "--report-on=tool/governance"
+          ],
+          "timeout_seconds": 120
+        },
+        {
+          "argv": [
+            "dart",
+            "run",
+            "tool/governance/analyze.dart",
+            "--inventory"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "property": {
+      "description": "Run bounded reproducible exact-money properties",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "test/accounting_money_property_test.dart"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "check": {
+      "description": "Local and CI quality gate; does not read local credentials",
+      "steps": [
+        {
+          "argv": [
+            "@ledger-tool",
+            "policy-check"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "security"
+          ],
+          "timeout_seconds": 1200
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "bootstrap"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "currency",
+            "--app-check"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "generate-check",
+            "--output",
+            "lib/l10n/generated",
+            "--",
+            "flutter",
+            "gen-l10n"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "lint"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "arch"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "test"
+          ]
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "coverage-check"
+          ]
+        }
+      ]
+    },
+    "test-device": {
+      "description": "Run an explicitly selected native target and device",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub"
+          ],
+          "timeout_seconds": 900
+        }
+      ]
+    },
+    "capture-ui": {
+      "description": "Capture deterministic native UI evidence",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "drive",
+            "--no-pub",
+            "--driver=test_driver/visual_driver.dart",
+            "--dart-define=CAPTURE_VISUALS=true",
+            "--dart-define=SENTRY_DSN="
+          ],
+          "timeout_seconds": 900
+        }
+      ]
+    },
+    "ios-smoke": {
+      "description": "Create an ephemeral named iOS simulator and run native smoke acceptance",
+      "steps": [
+        {
+          "argv": [
+            "xcrun",
+            "simctl",
+            "create",
+            "Ledger-CI",
+            "com.apple.CoreSimulator.SimDeviceType.iPhone-16"
+          ],
+          "timeout_seconds": 60
+        },
+        {
+          "argv": [
+            "xcrun",
+            "simctl",
+            "boot",
+            "Ledger-CI"
+          ],
+          "timeout_seconds": 60
+        },
+        {
+          "argv": [
+            "xcrun",
+            "simctl",
+            "bootstatus",
+            "Ledger-CI",
+            "-b"
+          ],
+          "timeout_seconds": 180
+        },
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "integration_test/app_test.dart",
+            "-d",
+            "Ledger-CI"
+          ],
+          "timeout_seconds": 900
+        }
+      ]
+    },
+    "generate-check": {
+      "description": "Check localization generation in an isolated temporary checkout",
+      "steps": [
+        {
+          "argv": [
+            "@ledger-tool",
+            "generate-check",
+            "--output",
+            "lib/l10n/generated",
+            "--",
+            "flutter",
+            "gen-l10n"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "security-secrets": {
+      "description": "Scan an isolated source copy with fully redacted findings; no local environment files",
+      "steps": [
+        {
+          "argv": [
+            "@ledger-tool",
+            "isolated-run",
+            "--",
+            "go",
+            "run",
+            "-ldflags=-X github.com/zricethezav/gitleaks/v8/version.Version=8.30.1",
+            "github.com/zricethezav/gitleaks/v8@v8.30.1",
+            "dir",
+            "--redact=100",
+            "--no-banner",
+            "--ignore-gitleaks-allow",
+            "--report-format=json",
+            "--report-path={root}/build/secrets.json",
+            "."
+          ],
+          "timeout_seconds": 600
+        }
+      ]
+    },
+    "security-dependencies": {
+      "description": "Advisory Dart dependency currency and security advisory report; not a Go vulnerability scan",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "pub",
+            "outdated",
+            "--json"
+          ],
+          "timeout_seconds": 300
+        }
+      ]
+    },
+    "security": {
+      "description": "Pinned security tools; network availability is required for dependency advisory data",
+      "steps": [
+        {
+          "argv": [
+            "@ledger-tool",
+            "security-secrets"
+          ],
+          "timeout_seconds": 600
+        },
+        {
+          "argv": [
+            "@ledger-tool",
+            "security-dependencies"
+          ],
+          "timeout_seconds": 600
+        }
+      ]
+    }
+  },
+  "coverage": {
+    "format": "lcov",
+    "profiles": [
+      "coverage/lcov.info",
+      "coverage/tool.lcov.info"
+    ],
+    "inventory": "coverage/source-inventory.json",
+    "source_roots": [
+      "lib",
+      "tool/governance"
+    ],
+    "exclude": [
+      "lib/l10n/generated/**"
+    ],
+    "minimum": 70,
+    "incremental_minimum": 90
+  },
+  "debug_profiles": {
+    "money": {
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "test/accounting_money_property_test.dart"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    },
+    "architecture": {
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "test/governance/architecture_test.dart"
+          ],
+          "timeout_seconds": 120
+        }
+      ]
+    }
+  }
+}

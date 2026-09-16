@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "edge": "feature-private-import|lib/features/accounting/common.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/accounting/common.dart|lib/features/auth/session_gate.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/accounting/detail.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/accounting/filters.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/accounting/forms.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/accounting/pages.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/books/books_page.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/home/home_page.dart|lib/features/accounting/common.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/home/home_page.dart|lib/features/accounting/pages.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    },
+    {
+      "edge": "feature-private-import|lib/features/settings/settings_page.dart|lib/features/auth/failure_view.dart",
+      "owner": "ledger-app maintainers",
+      "expires": "2026-10-16",
+      "reason": "Existing Phase 2 cross-feature composition; move shared authentication presentation to a public boundary in the architecture migration."
+    }
+  ]
+}

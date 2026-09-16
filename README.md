@@ -65,7 +65,7 @@ Local configuration is **not** bundled. `.env.local` is ignored by Git and is
 explicitly absent from the asset list, so a release artifact cannot carry whatever
 happens to be in a developer's working tree. A debug run loads it through
 `--dart-define-from-file=.env.local`; without that flag the app starts with empty
-configuration. Nothing needs to exist for `tool/check.sh` to pass.
+configuration. Nothing needs to exist for `just check` to pass.
 Changes require a full restart/rebuild. The existing installed app is unaffected.
 
 Explicit `--dart-define` values override `.env.local`, including an empty value such as
@@ -98,8 +98,15 @@ Optionally add `--dart-define=SENTRY_DSN=<client-dsn>`. These values are embedde
 
 ## Development
 
+Install just and the Go version required by the pinned governance bundle, in
+addition to Flutter. `just` lists the supported commands. The Go bootstrap checks
+the bundle digest and builds a temporary CLI using Go's build cache; Python is
+not required. See
+[architecture and quality governance](docs/governance.md) for coverage, Git,
+independent review and reproducible debugging standards.
+
 ```sh
-bash tool/check.sh
+just check
 # Run actual device acceptance separately:
 flutter test integration_test -d <device-id>
 ```
@@ -138,7 +145,7 @@ For release/profile builds, supply both `APP_ENV` and `SENTRY_DSN` via Dart Defi
 
 ## Accounting verification
 
-Run `bash tool/check.sh` for generated resources, static checks and tests. See
+Run `just check` for generated resources, static checks and tests. See
 [accounting](docs/accounting.md) for API and state boundaries, and the native
 HTTP/PostgreSQL test commands. Screenshots and dated results live in the sibling
 ledger-manuscript directory. Native tests use synthetic authentication against an
