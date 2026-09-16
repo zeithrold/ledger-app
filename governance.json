@@ -305,17 +305,8 @@
       ]
     },
     "android-smoke": {
-      "description": "Wait for an already-started Android emulator and run native smoke acceptance; the recipe appends the target and -d SERIAL",
+      "description": "Run native smoke acceptance on an already-running Android emulator; the recipe appends the target and -d SERIAL. There is no separate wait step: flutter device discovery cannot assert a serial and burns its whole window even when the device is attached",
       "steps": [
-        {
-          "argv": [
-            "flutter",
-            "devices",
-            "--device-timeout",
-            "300"
-          ],
-          "timeout_seconds": 360
-        },
         {
           "argv": [
             "flutter",
@@ -480,6 +471,14 @@
     "minimum": 70,
     "incremental_minimum": 90
   },
+  "command_migrations": [
+    {
+      "step": "flutter devices --device-timeout 300",
+      "owner": "zeithrold",
+      "reason": "The Android wait step could not assert the serial and consumed its whole window even with the device attached. Device selection is now enforced by the flutter test step, which fails loudly when the emulator is absent.",
+      "expires": "2026-10-16"
+    }
+  ],
   "debug_profiles": {
     "money": {
       "steps": [

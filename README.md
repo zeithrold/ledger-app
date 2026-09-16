@@ -109,7 +109,8 @@ independent review and reproducible debugging standards.
 just check
 # Native acceptance runs separately, against an environment you provide:
 flutter emulators --launch <avd>   # or boot an iOS simulator
-just android-smoke                 # waits for the device, then runs the smoke
+flutter devices                    # wait until the emulator is listed as online
+just android-smoke                 # runs the smoke on emulator-5554
 just ios-smoke                     # creates and boots an ephemeral iOS simulator
 ```
 

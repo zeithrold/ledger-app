@@ -36,13 +36,24 @@ measurement and review rules.
 invocable, for example `just test-device`, `just generate-check`, `just ios-smoke`
 and `just android-smoke`. New recipes stay private until a daily need is proven.
 
-Native smoke needs an environment that the repository does not create on Android:
+Native smoke needs an environment that the repository does not create on Android.
+The emulator has to be attached **and online** — `flutter emulators --launch`
+returns after a few seconds while the device is still `offline` in `adb devices`,
+and the smoke fails until boot completes:
 
 ```sh
 flutter emulators --launch Pixel_10_Pro_XL   # local arm64 AVD, becomes emulator-5554
-just android-smoke                          # waits for the device, then runs the smoke
-just ios-smoke                              # creates and boots an ephemeral iOS simulator
+flutter devices                              # wait until emulator-5554 is listed as online
+just android-smoke                           # runs the smoke on emulator-5554
+just ios-smoke                               # creates and boots an ephemeral iOS simulator
 ```
+
+`android-smoke` runs `flutter test -d <serial>` directly: device selection is what
+fails when the emulator is not ready, and Flutter lists the attached devices in
+that error. There is deliberately no wait step — `flutter devices
+--device-timeout` cannot assert a serial, and it consumes the whole window even
+when the device is already attached, so it would only add a fixed delay. For a
+device other than the default serial, use `just test-device <target> <device>`.
 
 The Android environment is not pinned by this repository: CI boots an x86_64 API
 35 emulator through `reactivecircus/android-emulator-runner`, while a local Apple
