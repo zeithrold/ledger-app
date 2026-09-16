@@ -31,6 +31,25 @@ handwritten-source inventory. These gates supplement behavioral and native
 testing; they do not prove correctness. See [governance](governance.md) for
 measurement and review rules.
 
+`just --list` shows the daily surface only: `check`, `changes`, `test`, `lint`,
+`fmt` and `arch`. Every other recipe is private, hidden from that list but still
+invocable, for example `just test-device`, `just generate-check`, `just ios-smoke`
+and `just android-smoke`. New recipes stay private until a daily need is proven.
+
+Native smoke needs an environment that the repository does not create on Android:
+
+```sh
+flutter emulators --launch Pixel_10_Pro_XL   # local arm64 AVD, becomes emulator-5554
+just android-smoke                          # waits for the device, then runs the smoke
+just ios-smoke                              # creates and boots an ephemeral iOS simulator
+```
+
+The Android environment is not pinned by this repository: CI boots an x86_64 API
+35 emulator through `reactivecircus/android-emulator-runner`, while a local Apple
+silicon Mac runs an arm64 image such as API 37. Record which environment a result
+came from; a local pass is not a CI pass. Stop the emulator with `adb emu kill`
+when platform-tools is on `PATH`.
+
 `flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 
 ## Device and build checks

@@ -90,7 +90,7 @@ jobs:
           api-level: 35
           arch: x86_64
           disable-animations: true
-          script: go run ./tool/bootstrap.go test-device integration_test/app_test.dart -d emulator-5554
+          script: go run ./tool/bootstrap.go android-smoke -d emulator-5554
 
   ios:
     runs-on: macos-latest

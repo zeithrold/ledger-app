@@ -107,9 +107,13 @@ independent review and reproducible debugging standards.
 
 ```sh
 just check
-# Run actual device acceptance separately:
-flutter test integration_test -d <device-id>
+# Native acceptance runs separately, against an environment you provide:
+flutter emulators --launch <avd>   # or boot an iOS simulator
+just android-smoke                 # waits for the device, then runs the smoke
+just ios-smoke                     # creates and boots an ephemeral iOS simulator
 ```
+
+`just --list` shows the daily surface only: `check`, `changes`, `test`, `lint`, `fmt` and `arch`; other recipes are private but still invocable. See [testing](docs/testing.md) for the native environments CI uses and how they differ from a local machine.
 
 Every UI behavior change must ship with matching tests. See [engineering rules](AGENTS.md), [testing](docs/testing.md), and [localization](docs/localization.md). CI runs the local quality checks and verifies generated output against checked-in files; device acceptance remains a separate check.
 

@@ -304,6 +304,29 @@
         }
       ]
     },
+    "android-smoke": {
+      "description": "Wait for an already-started Android emulator and run native smoke acceptance; the recipe appends the target and -d SERIAL",
+      "steps": [
+        {
+          "argv": [
+            "flutter",
+            "devices",
+            "--device-timeout",
+            "300"
+          ],
+          "timeout_seconds": 360
+        },
+        {
+          "argv": [
+            "flutter",
+            "test",
+            "--no-pub",
+            "integration_test/app_test.dart"
+          ],
+          "timeout_seconds": 900
+        }
+      ]
+    },
     "capture-ui": {
       "description": "Capture deterministic native UI evidence",
       "steps": [
