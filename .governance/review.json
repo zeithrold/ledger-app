@@ -1,31 +1,19 @@
 {
   "schema_version": 1,
-  "fingerprint": "9eec15a41bc29f4582f4d3e8b1c3ebe17c683c3dca0c4ffe0413638942f2e494",
-  "reviewer": "independent-subagent:composer/android-ci-kvm-readiness",
+  "fingerprint": "0e56cc3c91dcac931d46a70a8a37ce691ae307191d15bceb2c14cdd9ecc3ba6c",
+  "reviewer": "independent-subagent:composer/android-ci-enable-kvm-chmod",
   "independent": true,
   "scope": [
-    "Re-review of working tree vs base 309650c3fc76dbd76b219e24afc77222cc496b05: .github/workflows/ci.yml, docs/testing.md, docs/governance.md (plus this report)",
-    "Delta since prior review fingerprint ae005fb7...: workflow comment at disable-animations rewritten to state that input keyevent 82 is mandatory and KVM is the unlock mitigation; docs/testing.md rewritten to separate soft-accel/keyevent Broken pipe from post-unlock pm-path wait and settings retries; docs/governance.md unchanged from prior review round",
-    "Behavior unchanged from prior approve: Enable KVM with /dev/kvm rw asserts; disable-animations false; disable-linux-hw-accel false; emulator-boot-timeout 600; script hard-fails on pm path timeout and exhausted settings retries before android-smoke; no continue-on-error",
-    "Prior P3 (misleading claim that disable-animations disables unlock) verified resolved by reading the final comment and testing.md wording against upstream action behavior"
+    "Final uncommitted diff vs base 064eb145f38b35502c2edba6957ff4a3e7f6efe9: .github/workflows/ci.yml, docs/testing.md, docs/governance.md; this report rewritten after follow-up re-review",
+    "Android CI Enable KVM: after udev, explicit missing-/dev/kvm failure, ls -l, sudo chmod 666 /dev/kvm, re-ls, then explicit not-readable and not-writable if/echo/exit checks; no continue-on-error",
+    "Follow-up since prior approve (fingerprint 8645dfe5...): replaced opaque test -r/-w with named stderr failure messages after chmod",
+    "Docs alignment for udev-plus-chmod and hard-fail on missing device or missing read/write; gate wording not weakened"
   ],
-  "findings": [
-    {
-      "severity": "P3",
-      "file": ".github/workflows/ci.yml",
-      "line": 103,
-      "rule": "Durable CI comments and testing docs must accurately describe which failure path each mitigation covers; a comment that claims action-owned unlock is disabled must match upstream action behavior",
-      "trigger": "Prior round: the workflow comment stated that setting disable-animations:false disables action-owned unlock/settings, and docs/testing.md attributed Broken-pipe avoidance to the script wait, while upstream always runs shell input keyevent 82 after boot_completed",
-      "impact": "Resolved. The workflow comment now states the action always runs keyevent 82 once and cannot disable it, that KVM keeps unlock from Broken-piping, and that disable-animations only gates the three settings puts which are retried in the script. docs/testing.md now separates soft-accel/mandatory keyevent Broken pipe from the post-unlock pm-path and animation-retry hardening",
-      "recommendation": "None - resolved.",
-      "resolved": true
-    }
-  ],
+  "findings": [],
   "limitations": [
-    "Remote GitHub Actions Android job was not re-run by this reviewer on fingerprint 9eec15a4...; KVM permission and absence of Broken pipe on keyevent 82 remain reasoned from failed-run 35175346412 evidence and upstream action source, not proven on a green CI run of this tree",
-    "No local Android emulator or android-smoke execution was performed; this change is CI workflow and docs only",
+    "Remote GitHub Actions Android job was not re-run by this reviewer; whether chmod 666 grants runner-session rw on ubuntu-latest after udev remains reasoned from failed run 35179121337 and the durable reactivecircus pattern, not proven green on this tree",
+    "No local Android emulator, KVM device, or android-smoke execution was performed; change is CI workflow and docs only",
     "review-check validates schema and fingerprint freshness only; reviewer identity and independence are asserted by the delegating harness, not cryptographically proven",
-    "android-emulator-runner remains pinned as @v2 (floating minor); unconditional keyevent 82 was verified against current upstream sources and may drift if a later v2 release changes pre-script steps",
-    "Fingerprint 9eec15a41bc29f4582f4d3e8b1c3ebe17c683c3dca0c4ffe0413638942f2e494 was produced by `go run ./tool/bootstrap.go fingerprint` before writing this report and re-confirmed after; .governance/review.json is excluded from the fingerprint"
+    "Fingerprint 0e56cc3c91dcac931d46a70a8a37ce691ae307191d15bceb2c14cdd9ecc3ba6c was produced by `go run ./tool/bootstrap.go fingerprint` before writing this report; .governance/review.json is excluded from the fingerprint"
   ]
 }

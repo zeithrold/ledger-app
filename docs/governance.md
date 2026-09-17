@@ -123,8 +123,9 @@ blocked and unrun checks separately, including remote CI and device boundaries.
 
 CI provisions a named iPhone 16 simulator on macOS and an Android API 35 emulator
 on Linux for native smoke flows. The Android job enables KVM before the emulator
-runner so hardware acceleration is available; missing `/dev/kvm` access, boot
-timeouts, or failed adb readiness fail the job and are not silently skipped.
+runner (udev rule plus in-session `chmod 666 /dev/kvm`) so hardware acceleration
+is available; missing `/dev/kvm`, missing read/write access, boot timeouts, or
+failed adb readiness fail the job and are not silently skipped.
 These smoke jobs do not replace affected-flow acceptance or live authentication
 validation. No remote CI result is established by authoring a workflow.
 

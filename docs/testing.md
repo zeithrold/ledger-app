@@ -58,12 +58,15 @@ device other than the default serial, use `just test-device <target> <device>`.
 The Android environment is not pinned by this repository: CI boots an x86_64 API
 35 emulator through `reactivecircus/android-emulator-runner` after enabling KVM
 on `ubuntu-latest`, while a local Apple silicon Mac runs an arm64 image such as
-API 37. Without KVM the runner falls back to software acceleration; boot can
-take many minutes and the action's mandatory post-boot `input keyevent` can hit
-Broken pipe before any smoke script runs. After that unlock succeeds, CI still
-waits until `pm path android` succeeds and disables animations with adb retries
-before `android-smoke`. Missing KVM or a missing emulator fails the job; it is
-never skipped. Record which environment a result came from; a local pass is not
+API 37. The Enable KVM step installs a udev rule, prints `ls -l /dev/kvm`, then
+`chmod 666 /dev/kvm` so the runner session can open the device even when udev
+does not re-apply MODE in-session. Without readable/writable `/dev/kvm` the
+runner falls back to software acceleration; boot can take many minutes and the
+action's mandatory post-boot `input keyevent` can hit Broken pipe before any
+smoke script runs. After that unlock succeeds, CI still waits until
+`pm path android` succeeds and disables animations with adb retries before
+`android-smoke`. A missing `/dev/kvm`, missing read/write access, or a missing
+emulator fails the job; it is never skipped. Record which environment a result came from; a local pass is not
 a CI pass. Stop the emulator with `adb emu kill` when platform-tools is on
 `PATH`.
 
