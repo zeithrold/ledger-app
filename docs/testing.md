@@ -63,12 +63,13 @@ API 37. The Enable KVM step installs a udev rule, prints `ls -l /dev/kvm`, then
 does not re-apply MODE in-session. Without readable/writable `/dev/kvm` the
 runner falls back to software acceleration; boot can take many minutes and the
 action's mandatory post-boot `input keyevent` can hit Broken pipe before any
-smoke script runs. After that unlock succeeds, CI still waits until
-`pm path android` succeeds and disables animations with adb retries before
-`android-smoke`. A missing `/dev/kvm`, missing read/write access, or a missing
-emulator fails the job; it is never skipped. Record which environment a result came from; a local pass is not
-a CI pass. Stop the emulator with `adb emu kill` when platform-tools is on
-`PATH`.
+smoke script runs. The action runs each line of its `script:` input as a separate
+`sh -c`, so CI readiness waits and animation disable live in
+`tool/ci/android-emulator-smoke.sh`, invoked as a single command after unlock.
+A missing `/dev/kvm`, missing read/write access, or a missing emulator fails the
+job; it is never skipped. Record which environment a result came from; a local
+pass is not a CI pass. Stop the emulator with `adb emu kill` when platform-tools
+is on `PATH`.
 
 `flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 

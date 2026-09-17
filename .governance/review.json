@@ -1,19 +1,29 @@
 {
   "schema_version": 1,
-  "fingerprint": "0e56cc3c91dcac931d46a70a8a37ce691ae307191d15bceb2c14cdd9ecc3ba6c",
-  "reviewer": "independent-subagent:composer/android-ci-enable-kvm-chmod",
+  "fingerprint": "eddd8dc0112306a642b31ee718a00606ff986f10deae520508696ebff35014c4",
+  "reviewer": "independent-subagent:composer/android-emulator-smoke-script",
   "independent": true,
   "scope": [
-    "Final uncommitted diff vs base 064eb145f38b35502c2edba6957ff4a3e7f6efe9: .github/workflows/ci.yml, docs/testing.md, docs/governance.md; this report rewritten after follow-up re-review",
-    "Android CI Enable KVM: after udev, explicit missing-/dev/kvm failure, ls -l, sudo chmod 666 /dev/kvm, re-ls, then explicit not-readable and not-writable if/echo/exit checks; no continue-on-error",
-    "Follow-up since prior approve (fingerprint 8645dfe5...): replaced opaque test -r/-w with named stderr failure messages after chmod",
-    "Docs alignment for udev-plus-chmod and hard-fail on missing device or missing read/write; gate wording not weakened"
+    "Final dirty-tree review of Android CI script extraction: .github/workflows/ci.yml, tool/ci/android-emulator-smoke.sh (new), docs/testing.md, docs/governance.md",
+    "Change intent: android-emulator-runner runs each script: line as separate sh -c; multiline while/if moved into tool/ci/android-emulator-smoke.sh invoked as one command; Enable KVM step retained; docs updated",
+    "Verdict: approved — no P0–P2 defects; one P3 advisory on authored shell vs Go orchestration preference"
   ],
-  "findings": [],
+  "findings": [
+    {
+      "severity": "P3",
+      "file": "tool/ci/android-emulator-smoke.sh",
+      "line": 1,
+      "rule": "AGENTS.md / docs/governance.md: prefer just + pinned Go CLI; do not introduce shell orchestration as a second framework",
+      "trigger": "New authored CI shell entrypoint holds adb readiness waits and animation-disable retries before delegating to go run ./tool/bootstrap.go android-smoke",
+      "impact": "Expands committed shell surface for CI; future post-boot steps may accumulate in shell instead of the versioned Go CLI",
+      "recommendation": "Optionally fold pm-path wait and settings retries into the Go android-smoke (or a dedicated Go CI helper) so workflow script: is a single go run invocation; keep the thin bash wrapper only while the third-party line-splitting constraint requires it",
+      "resolved": false
+    }
+  ],
   "limitations": [
-    "Remote GitHub Actions Android job was not re-run by this reviewer; whether chmod 666 grants runner-session rw on ubuntu-latest after udev remains reasoned from failed run 35179121337 and the durable reactivecircus pattern, not proven green on this tree",
-    "No local Android emulator, KVM device, or android-smoke execution was performed; change is CI workflow and docs only",
+    "Remote GitHub Actions android job was not executed by this reviewer; Syntax error fix is reasoned from reactivecircus/android-emulator-runner per-line sh -c behavior and the extracted script equivalence, not proven green on this tree",
+    "No local Android emulator, KVM, adb, or android-smoke execution was performed",
     "review-check validates schema and fingerprint freshness only; reviewer identity and independence are asserted by the delegating harness, not cryptographically proven",
-    "Fingerprint 0e56cc3c91dcac931d46a70a8a37ce691ae307191d15bceb2c14cdd9ecc3ba6c was produced by `go run ./tool/bootstrap.go fingerprint` before writing this report; .governance/review.json is excluded from the fingerprint"
+    "Fingerprint eddd8dc0112306a642b31ee718a00606ff986f10deae520508696ebff35014c4 was produced by go run ./tool/bootstrap.go fingerprint on the dirty tree before writing this report; .governance/review.json is excluded from the fingerprint"
   ]
 }

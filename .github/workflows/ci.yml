@@ -115,41 +115,16 @@ jobs:
           api-level: 35
           arch: x86_64
           # The action always runs `adb shell input keyevent 82` once after
-          # boot_completed (cannot be disabled). KVM above is what keeps that
-          # unlock from Broken-piping. disable-animations only gates the three
-          # settings puts; we skip them here and apply them with retries below
-          # once the package manager answers, so a brief settings race does not
-          # kill the job before smoke.
+          # boot_completed. It also executes each line of `script:` as its own
+          # `sh -c`, so multi-line while/if blocks must not be inlined here —
+          # use the single-command entrypoint below.
+          # disable-animations only gates the action's own settings puts; we
+          # apply animations off with retries in the script after package
+          # manager answers, so a brief settings race does not kill the job.
           disable-animations: false
           disable-linux-hw-accel: false
           emulator-boot-timeout: 600
-          script: |
-            set -eu
-            serial=emulator-5554
-            i=0
-            while [ "$i" -lt 90 ]; do
-              if adb -s "$serial" shell 'pm path android' >/dev/null 2>&1; then
-                break
-              fi
-              i=$((i + 1))
-              sleep 2
-            done
-            adb -s "$serial" shell 'pm path android' >/dev/null
-            attempt=0
-            while [ "$attempt" -lt 8 ]; do
-              if adb -s "$serial" shell settings put global window_animation_scale 0.0 \
-                && adb -s "$serial" shell settings put global transition_animation_scale 0.0 \
-                && adb -s "$serial" shell settings put global animator_duration_scale 0.0; then
-                break
-              fi
-              attempt=$((attempt + 1))
-              sleep 3
-            done
-            if [ "$attempt" -ge 8 ]; then
-              echo "adb settings still unavailable after retries" >&2
-              exit 1
-            fi
-            go run ./tool/bootstrap.go android-smoke -d "$serial"
+          script: bash tool/ci/android-emulator-smoke.sh emulator-5554
 
   ios:
     runs-on: macos-latest
