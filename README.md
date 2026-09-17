@@ -155,3 +155,7 @@ Run `just check` for generated resources, static checks and tests. See
 HTTP/PostgreSQL test commands. Screenshots and dated results live in the sibling
 ledger-manuscript directory. Native tests use synthetic authentication against an
 isolated database; live Clerk and production deployment remain separate checks.
+
+## License
+
+[MIT](LICENSE).
