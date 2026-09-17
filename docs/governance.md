@@ -122,10 +122,11 @@ rules here and dated results in the manuscript repository. Report passed, failed
 blocked and unrun checks separately, including remote CI and device boundaries.
 
 CI provisions a named iPhone 16 simulator on macOS and an Android API 35 emulator
-on Linux for native smoke flows. Missing runtimes fail the job; they are not
-silently skipped. These smoke jobs do not replace affected-flow acceptance or
-live authentication validation. No remote CI result is established by authoring
-a workflow.
+on Linux for native smoke flows. The Android job enables KVM before the emulator
+runner so hardware acceleration is available; missing `/dev/kvm` access, boot
+timeouts, or failed adb readiness fail the job and are not silently skipped.
+These smoke jobs do not replace affected-flow acceptance or live authentication
+validation. No remote CI result is established by authoring a workflow.
 
 The tracked UI evidence descriptor is `.governance/ui.json` (schema version 1).
 It binds `base`, `head` and the current `fingerprint`, and contains `captures`

@@ -56,10 +56,16 @@ when the device is already attached, so it would only add a fixed delay. For a
 device other than the default serial, use `just test-device <target> <device>`.
 
 The Android environment is not pinned by this repository: CI boots an x86_64 API
-35 emulator through `reactivecircus/android-emulator-runner`, while a local Apple
-silicon Mac runs an arm64 image such as API 37. Record which environment a result
-came from; a local pass is not a CI pass. Stop the emulator with `adb emu kill`
-when platform-tools is on `PATH`.
+35 emulator through `reactivecircus/android-emulator-runner` after enabling KVM
+on `ubuntu-latest`, while a local Apple silicon Mac runs an arm64 image such as
+API 37. Without KVM the runner falls back to software acceleration; boot can
+take many minutes and the action's mandatory post-boot `input keyevent` can hit
+Broken pipe before any smoke script runs. After that unlock succeeds, CI still
+waits until `pm path android` succeeds and disables animations with adb retries
+before `android-smoke`. Missing KVM or a missing emulator fails the job; it is
+never skipped. Record which environment a result came from; a local pass is not
+a CI pass. Stop the emulator with `adb emu kill` when platform-tools is on
+`PATH`.
 
 `flutter pub get --enforce-lockfile` may need network access to the pub host, so the gate is not fully offline on a cold caches. No step requires `.env.local`, a database, a device or credentials. The currency check reads the committed contract record and compares it with the contract revision the transport sends, which is what catches a stale export from the backend.
 
